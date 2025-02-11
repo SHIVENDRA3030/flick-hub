@@ -33,26 +33,26 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">Movies</h1>
+        <h1 className="text-4xl font-bold mb-8 text-gradient">Movies</h1>
         
         {/* Search Bar */}
         <div className="mb-8">
           <Input
             type="search"
             placeholder="Search movies..."
-            className="max-w-md"
+            className="max-w-md bg-secondary/50 border-secondary"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         {isLoading ? (
-          <div className="text-center">Loading movies...</div>
+          <div className="text-center text-muted-foreground">Loading movies...</div>
         ) : (
           /* Movie Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredMovies.map((movie) => (
-              <Card key={movie.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={movie.id} className="overflow-hidden hover:shadow-lg transition-shadow glass-morphism">
                 <Link to={`/movie/${movie.id}`}>
                   <div className="aspect-[2/3] relative">
                     <img
@@ -60,20 +60,20 @@ const Index = () => {
                       alt={movie.title}
                       className="object-cover w-full h-full"
                     />
-                    <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded-md flex items-center gap-1">
+                    <div className="absolute top-2 right-2 neo-blur px-2 py-1 rounded-md flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                       <span className="text-white">{movie.size}</span>
                     </div>
                   </div>
                   <CardContent className="p-4">
-                    <h2 className="font-semibold text-lg mb-2 line-clamp-1">
+                    <h2 className="font-semibold text-lg mb-2 line-clamp-1 text-foreground">
                       {movie.title} ({format(new Date(movie.release_date), "yyyy")})
                     </h2>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="bg-secondary/50">
                         {movie.content_type || "Movie"}
                       </Badge>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="bg-secondary/50">
                         {movie.size}
                       </Badge>
                     </div>
