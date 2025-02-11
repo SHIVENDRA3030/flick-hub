@@ -9,7 +9,181 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      download_links: {
+        Row: {
+          audio: string | null
+          codec: string | null
+          created_at: string | null
+          episode: number | null
+          id: string
+          label: string | null
+          movie_id: string | null
+          quality: string | null
+          season: number | null
+          size: string | null
+          source: string | null
+          status: string | null
+          type: string | null
+          url: string
+        }
+        Insert: {
+          audio?: string | null
+          codec?: string | null
+          created_at?: string | null
+          episode?: number | null
+          id?: string
+          label?: string | null
+          movie_id?: string | null
+          quality?: string | null
+          season?: number | null
+          size?: string | null
+          source?: string | null
+          status?: string | null
+          type?: string | null
+          url: string
+        }
+        Update: {
+          audio?: string | null
+          codec?: string | null
+          created_at?: string | null
+          episode?: number | null
+          id?: string
+          label?: string | null
+          movie_id?: string | null
+          quality?: string | null
+          season?: number | null
+          size?: string | null
+          source?: string | null
+          status?: string | null
+          type?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_links_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movies: {
+        Row: {
+          content_type: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          poster_url: string | null
+          release_date: string
+          size: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          poster_url?: string | null
+          release_date: string
+          size: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          poster_url?: string | null
+          release_date?: string
+          size?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      streaming_links: {
+        Row: {
+          created_at: string | null
+          id: string
+          label: string | null
+          movie_id: string | null
+          provider: string | null
+          quality: string | null
+          status: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          movie_id?: string | null
+          provider?: string | null
+          quality?: string | null
+          status?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          movie_id?: string | null
+          provider?: string | null
+          quality?: string | null
+          status?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streaming_links_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xengine_links: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          movie_id: string | null
+          quality: string | null
+          size: string | null
+          source: string
+          status: string | null
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          movie_id?: string | null
+          quality?: string | null
+          size?: string | null
+          source: string
+          status?: string | null
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          movie_id?: string | null
+          quality?: string | null
+          size?: string | null
+          source?: string
+          status?: string | null
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
