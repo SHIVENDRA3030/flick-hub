@@ -1,29 +1,40 @@
 
 export interface Movie {
-  id: number;
+  id: string;
   title: string;
-  poster: string;
-  genre: string[];
-  rating: number;
-  year: number;
-  size?: string;
-  description?: string;
-  created_at?: string;
-  updated_at?: string;
+  poster_url: string | null;
+  content_type: string | null;
+  release_date: string;
+  size: string;
+  description: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface DownloadLink {
   id: string;
-  movie_id: number;
+  movie_id: string | null;
   url: string;
-  label?: string;
-  created_at?: string;
+  label?: string | null;
+  quality?: string | null;
+  source?: string | null;
+  audio?: string | null;
+  status?: string | null;
+  codec?: string | null;
+  created_at?: string | null;
+  season?: number | null;
+  episode?: number | null;
+  type?: string | null;
+  size?: string | null;
 }
 
 export interface StreamingLink {
   id: string;
-  movie_id: number;
+  movie_id: string | null;
   url: string;
-  label?: string;
-  created_at?: string;
+  label?: string | null;
+  provider?: string | null;
+  quality?: string | null;
+  status?: string | null;
+  created_at?: string | null;
 }
