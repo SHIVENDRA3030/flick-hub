@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -26,6 +28,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showXEngine, setShowXEngine] = useState(false);
+  const isMobile = useIsMobile();
 
   // Regular movies query
   const { data: movies = [], isLoading } = useQuery({
@@ -119,12 +122,12 @@ const Index = () => {
                   {xengineResults.map((result) => (
                     <div
                       key={result.id}
-                      className="flex items-center gap-4 p-3 rounded-md bg-secondary/30 hover:bg-secondary/40 transition-colors"
+                      className="flex flex-col md:flex-row items-start md:items-center gap-4 p-3 rounded-md bg-secondary/30 hover:bg-secondary/40 transition-colors"
                     >
-                      <div className="flex-1">
+                      <div className="flex-1 w-full">
                         <h3 className="font-medium text-sm">{result.title}</h3>
                         {result.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-1">
+                          <p className={`text-sm text-muted-foreground ${isMobile ? "" : "line-clamp-1"}`}>
                             {result.description}
                           </p>
                         )}
@@ -145,9 +148,9 @@ const Index = () => {
                         href={result.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="shrink-0"
+                        className="shrink-0 w-full md:w-auto"
                       >
-                        <Button size="sm" variant="secondary">
+                        <Button size="sm" variant="secondary" className="w-full md:w-auto">
                           Open Link
                         </Button>
                       </a>
