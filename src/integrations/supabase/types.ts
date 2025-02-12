@@ -145,53 +145,6 @@ export type Database = {
           },
         ]
       }
-      xengine_links: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          movie_id: string | null
-          quality: string | null
-          size: string | null
-          source: string | null
-          status: string | null
-          title: string
-          url: string
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          movie_id?: string | null
-          quality?: string | null
-          size?: string | null
-          source?: string | null
-          status?: string | null
-          title: string
-          url: string
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          movie_id?: string | null
-          quality?: string | null
-          size?: string | null
-          source?: string | null
-          status?: string | null
-          title?: string
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "xengine_links_movie_id_fkey"
-            columns: ["movie_id"]
-            isOneToOne: false
-            referencedRelation: "movies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       xenine_links: {
         Row: {
           created_at: string | null
