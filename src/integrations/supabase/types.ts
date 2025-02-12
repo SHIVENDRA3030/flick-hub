@@ -145,7 +145,7 @@ export type Database = {
           },
         ]
       }
-      xengine_links: {
+      xenine_links: {
         Row: {
           created_at: string | null
           description: string | null
@@ -153,9 +153,8 @@ export type Database = {
           movie_id: string | null
           quality: string | null
           size: string | null
-          source: string
           status: string | null
-          title: string | null
+          title: string
           url: string
         }
         Insert: {
@@ -165,9 +164,8 @@ export type Database = {
           movie_id?: string | null
           quality?: string | null
           size?: string | null
-          source: string
           status?: string | null
-          title?: string | null
+          title: string
           url: string
         }
         Update: {
@@ -177,9 +175,8 @@ export type Database = {
           movie_id?: string | null
           quality?: string | null
           size?: string | null
-          source?: string
           status?: string | null
-          title?: string | null
+          title?: string
           url?: string
         }
         Relationships: []

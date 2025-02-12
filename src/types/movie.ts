@@ -38,3 +38,15 @@ export interface StreamingLink {
   status?: string | null;
   created_at?: string | null;
 }
+
+export interface XenineLink {
+  id: string;
+  title: string;
+  description?: string | null;
+  url: string;
+  quality?: string | null;
+  size?: string | null;
+  status?: string | null;
+  movie_id?: string | null;
+  created_at?: string | null;
+}
