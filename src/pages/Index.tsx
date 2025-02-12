@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, Search, ArrowDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Movie } from "@/types/movie";
@@ -17,13 +17,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 
 const ITEMS_PER_PAGE = 12;
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showXEngine, setShowXEngine] = useState(false);
 
+  // Regular movies query
   const { data: movies = [], isLoading } = useQuery({
     queryKey: ["movies"],
     queryFn: async () => {
@@ -35,6 +38,23 @@ const Index = () => {
       if (error) throw error;
       return data as Movie[];
     },
+  });
+
+  // X Engine search results
+  const { data: xengineResults = [], isLoading: isLoadingXEngine } = useQuery({
+    queryKey: ["xengine", searchQuery],
+    queryFn: async () => {
+      if (!searchQuery || !showXEngine) return [];
+      
+      const { data, error } = await supabase
+        .from("xengine_links")
+        .select("*")
+        .ilike("title", `%${searchQuery}%`);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!searchQuery && showXEngine,
   });
 
   const filteredMovies = movies.filter((movie) =>
@@ -54,15 +74,86 @@ const Index = () => {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-gradient">Movies</h1>
         
-        {/* Search Bar */}
-        <div className="mb-8">
-          <Input
-            type="search"
-            placeholder="Search movies..."
-            className="max-w-md bg-secondary/50 border-secondary"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {/* Search Section */}
+        <div className="mb-8 space-y-4">
+          <div className="flex gap-4 items-start">
+            <div className="flex-1 max-w-md">
+              <Input
+                type="search"
+                placeholder="Search movies..."
+                className="bg-secondary/50 border-secondary"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => setShowXEngine(!showXEngine)}
+            >
+              <Search className="w-4 h-4" />
+              X Engine
+              <ArrowDown className={`w-4 h-4 transition-transform ${showXEngine ? 'rotate-180' : ''}`} />
+            </Button>
+          </div>
+
+          {/* X Engine Results */}
+          {showXEngine && searchQuery && (
+            <div className="rounded-lg bg-secondary/20 p-4 space-y-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                X Engine Results
+              </h2>
+              
+              {isLoadingXEngine ? (
+                <div className="text-muted-foreground">Searching X Engine...</div>
+              ) : xengineResults.length > 0 ? (
+                <div className="space-y-3">
+                  {xengineResults.map((result) => (
+                    <div
+                      key={result.id}
+                      className="flex items-center gap-4 p-3 rounded-md bg-secondary/30 hover:bg-secondary/40 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <h3 className="font-medium text-sm">{result.title || 'Untitled'}</h3>
+                        {result.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {result.description}
+                          </p>
+                        )}
+                        <div className="flex gap-2 mt-1">
+                          {result.quality && (
+                            <Badge variant="outline" className="text-xs">
+                              {result.quality}
+                            </Badge>
+                          )}
+                          {result.size && (
+                            <Badge variant="outline" className="text-xs">
+                              {result.size}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <a
+                        href={result.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0"
+                      >
+                        <Button size="sm" variant="secondary">
+                          Open Link
+                        </Button>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-muted-foreground">
+                  No X Engine results found for "{searchQuery}"
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {isLoading ? (
