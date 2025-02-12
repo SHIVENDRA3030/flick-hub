@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Search, ArrowDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Movie } from "@/types/movie";
+import { Movie, XenineLink } from "@/types/movie";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import {
@@ -42,17 +42,17 @@ const Index = () => {
 
   // X Engine search results
   const { data: xengineResults = [], isLoading: isLoadingXEngine } = useQuery({
-    queryKey: ["xengine", searchQuery],
+    queryKey: ["xenine", searchQuery],
     queryFn: async () => {
       if (!searchQuery || !showXEngine) return [];
       
       const { data, error } = await supabase
-        .from("xengine_links")
+        .from("xenine_links")
         .select("*")
         .ilike("title", `%${searchQuery}%`);
 
       if (error) throw error;
-      return data;
+      return data as XenineLink[];
     },
     enabled: !!searchQuery && showXEngine,
   });
@@ -115,7 +115,7 @@ const Index = () => {
                       className="flex items-center gap-4 p-3 rounded-md bg-secondary/30 hover:bg-secondary/40 transition-colors"
                     >
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm">{result.title || 'Untitled'}</h3>
+                        <h3 className="font-medium text-sm">{result.title}</h3>
                         {result.description && (
                           <p className="text-sm text-muted-foreground line-clamp-1">
                             {result.description}
