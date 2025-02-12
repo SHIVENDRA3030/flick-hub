@@ -92,17 +92,17 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-2">
               <Switch
-                id="x-engine-mode"
+                id="Dark-engine-mode"
                 checked={showXEngine}
                 onCheckedChange={setShowXEngine}
-                className="data-[state=checked]:bg-purple-600"
+                className="data-[state=checked]:bg-green-500"
               />
               <Label
-                htmlFor="x-engine-mode"
+                htmlFor="Dark-engine-mode"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
               >
                 <Search className="w-4 h-4" />
-                X Engine {showXEngine ? "On" : "Off"}
+                Dark Engine {showXEngine ? "On" : "Off"}
               </Label>
             </div>
           </div>
@@ -112,11 +112,11 @@ const Index = () => {
             <div className="rounded-lg bg-secondary/20 p-4 space-y-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Search className="w-4 h-4" />
-                X Engine Results
+                Dark Engine Results
               </h2>
               
               {isLoadingXEngine ? (
-                <div className="text-muted-foreground">Searching X Engine...</div>
+                <div className="text-muted-foreground">Searching Dark Engine...</div>
               ) : xengineResults.length > 0 ? (
                 <div className="space-y-3">
                   {xengineResults.map((result) => (
@@ -159,7 +159,7 @@ const Index = () => {
                 </div>
               ) : (
                 <div className="text-muted-foreground">
-                  No X Engine results found for "{searchQuery}"
+                  No Dark Engine results found for "{searchQuery}"
                 </div>
               )}
             </div>
