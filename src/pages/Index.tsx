@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Star, Search, ArrowDown } from "lucide-react";
+import { Star, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Movie, XenineLink } from "@/types/movie";
@@ -18,6 +17,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -76,7 +77,7 @@ const Index = () => {
         
         {/* Search Section */}
         <div className="mb-8 space-y-4">
-          <div className="flex gap-4 items-start">
+          <div className="flex gap-4 items-center">
             <div className="flex-1 max-w-md">
               <Input
                 type="search"
@@ -86,15 +87,21 @@ const Index = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={() => setShowXEngine(!showXEngine)}
-            >
-              <Search className="w-4 h-4" />
-              X Engine
-              <ArrowDown className={`w-4 h-4 transition-transform ${showXEngine ? 'rotate-180' : ''}`} />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="x-engine-mode"
+                checked={showXEngine}
+                onCheckedChange={setShowXEngine}
+                className="data-[state=checked]:bg-purple-600"
+              />
+              <Label
+                htmlFor="x-engine-mode"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                X Engine {showXEngine ? "On" : "Off"}
+              </Label>
+            </div>
           </div>
 
           {/* X Engine Results */}
