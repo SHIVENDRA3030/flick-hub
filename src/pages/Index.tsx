@@ -52,7 +52,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-gradient">Movies</h1>
+        <h1 className="text-4xl font-bold mb-8 text-gradient">Darkstark</h1>
         
         {/* Search Bar */}
         <div className="mb-8">
