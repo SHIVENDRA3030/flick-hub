@@ -28,6 +28,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showXEngine, setShowXEngine] = useState(false);
+  const [showScrapedResults, setShowScrapedResults] = useState(false);
   const isMobile = useIsMobile();
 
   // Regular movies query
@@ -61,6 +62,22 @@ const Index = () => {
     enabled: !!searchQuery && showXEngine,
   });
 
+  // Scraped search results
+  const { data: scrapedResults = [], isLoading: isLoadingScraped } = useQuery({
+    queryKey: ["scraped", searchQuery],
+    queryFn: async () => {
+      if (!searchQuery || !showScrapedResults) return [];
+      
+      const response = await supabase.functions.invoke('scrape-search', {
+        body: { query: searchQuery }
+      });
+      
+      if (response.error) throw response.error;
+      return response.data.results;
+    },
+    enabled: !!searchQuery && showScrapedResults,
+  });
+
   const filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -80,7 +97,7 @@ const Index = () => {
         
         {/* Search Section */}
         <div className="mb-8 space-y-4">
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center flex-wrap">
             <div className="flex-1 max-w-md">
               <Input
                 type="search"
@@ -90,20 +107,37 @@ const Index = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                id="Dark-engine-mode"
-                checked={showXEngine}
-                onCheckedChange={setShowXEngine}
-                className="data-[state=checked]:bg-green-500"
-              />
-              <Label
-                htmlFor="Dark-engine-mode"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
-              >
-                <Search className="w-4 h-4" />
-                Dark Engine {showXEngine ? "On" : "Off"}
-              </Label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="Dark-engine-mode"
+                  checked={showXEngine}
+                  onCheckedChange={setShowXEngine}
+                  className="data-[state=checked]:bg-green-500"
+                />
+                <Label
+                  htmlFor="Dark-engine-mode"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" />
+                  Dark Engine {showXEngine ? "On" : "Off"}
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="forced-search-mode"
+                  checked={showScrapedResults}
+                  onCheckedChange={setShowScrapedResults}
+                  className="data-[state=checked]:bg-blue-500"
+                />
+                <Label
+                  htmlFor="forced-search-mode"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" />
+                  Forced Search {showScrapedResults ? "On" : "Off"}
+                </Label>
+              </div>
             </div>
           </div>
 
@@ -160,6 +194,54 @@ const Index = () => {
               ) : (
                 <div className="text-muted-foreground">
                   No Dark Engine results found for "{searchQuery}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Scraped Results */}
+          {showScrapedResults && searchQuery && (
+            <div className="rounded-lg bg-blue-950/20 p-4 space-y-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Forced Search Results
+              </h2>
+              
+              {isLoadingScraped ? (
+                <div className="text-muted-foreground">Searching external sources...</div>
+              ) : scrapedResults.length > 0 ? (
+                <div className="space-y-3">
+                  {scrapedResults.map((result, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col md:flex-row items-start md:items-center gap-4 p-3 rounded-md bg-blue-950/30 hover:bg-blue-950/40 transition-colors"
+                    >
+                      <div className="flex-1 w-full">
+                        <h3 className="font-medium text-sm">{result.title}</h3>
+                        <div className="flex gap-2 mt-1">
+                          {result.size && (
+                            <Badge variant="outline" className="text-xs">
+                              {result.size}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
+                        onClick={() => {
+                          window.open(`https://new3.scloud.ninja/file/${result.fileId}`, '_blank');
+                        }}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-muted-foreground">
+                  No external results found for "{searchQuery}"
                 </div>
               )}
             </div>
