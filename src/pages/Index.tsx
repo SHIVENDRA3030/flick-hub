@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,8 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ForcedSearchSection } from "@/components/forced-search/ForcedSearchSection";
-import { useForcedSearch } from "@/components/forced-search/useForcedSearch";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -63,11 +62,21 @@ const Index = () => {
     enabled: !!searchQuery && showXEngine,
   });
 
-  // Forced search results using the custom hook
-  const { data: scrapedResults = [], isLoading: isLoadingScraped } = useForcedSearch(
-    searchQuery,
-    showScrapedResults
-  );
+  // Scraped search results
+  const { data: scrapedResults = [], isLoading: isLoadingScraped } = useQuery({
+    queryKey: ["scraped", searchQuery],
+    queryFn: async () => {
+      if (!searchQuery || !showScrapedResults) return [];
+      
+      const response = await supabase.functions.invoke('scrape-search', {
+        body: { query: searchQuery }
+      });
+      
+      if (response.error) throw response.error;
+      return response.data.results;
+    },
+    enabled: !!searchQuery && showScrapedResults,
+  });
 
   const filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -190,13 +199,53 @@ const Index = () => {
             </div>
           )}
 
-          {/* Forced Search Section */}
-          <ForcedSearchSection
-            isEnabled={showScrapedResults}
-            searchQuery={searchQuery}
-            results={scrapedResults}
-            isLoading={isLoadingScraped}
-          />
+          {/* Scraped Results */}
+          {showScrapedResults && searchQuery && (
+            <div className="rounded-lg bg-blue-950/20 p-4 space-y-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Forced Search Results
+              </h2>
+              
+              {isLoadingScraped ? (
+                <div className="text-muted-foreground">Searching external sources...</div>
+              ) : scrapedResults.length > 0 ? (
+                <div className="space-y-3">
+                  {scrapedResults.map((result, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col md:flex-row items-start md:items-center gap-4 p-3 rounded-md bg-blue-950/30 hover:bg-blue-950/40 transition-colors"
+                    >
+                      <div className="flex-1 w-full">
+                        <h3 className="font-medium text-sm">{result.title}</h3>
+                        <div className="flex gap-2 mt-1">
+                          {result.size && (
+                            <Badge variant="outline" className="text-xs">
+                              {result.size}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
+                        onClick={() => {
+                          window.open(`https://new3.scloud.ninja/file/${result.fileId}`, '_blank');
+                        }}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-muted-foreground">
+                  No external results found for "{searchQuery}"
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {isLoading ? (
