@@ -76,30 +76,32 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-gradient">Darkstark</h1>
+        <h1 className="text-4xl font-bold mb-8 text-gradient animate-slide-in">
+          Darkstark
+        </h1>
         
         {/* Search Section */}
-        <div className="mb-8 space-y-4">
+        <div className="mb-8 space-y-4 animate-fade-in">
           <div className="flex gap-4 items-center flex-wrap">
             <div className="flex-1 max-w-md">
               <Input
                 type="search"
                 placeholder="Search movies..."
-                className="bg-secondary/50 border-secondary"
+                className="animated-search bg-secondary/50 border-secondary"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
               <Switch
                 id="Dark-engine-mode"
                 checked={showXEngine}
                 onCheckedChange={setShowXEngine}
-                className="data-[state=checked]:bg-green-500"
+                className="data-[state=checked]:bg-green-500 transition-colors duration-300"
               />
               <Label
                 htmlFor="Dark-engine-mode"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2 hover:text-white transition-colors"
               >
                 <Search className="w-4 h-4" />
                 Dark Engine {showXEngine ? "On" : "Off"}
@@ -109,7 +111,7 @@ const Index = () => {
 
           {/* X Engine Results */}
           {showXEngine && searchQuery && (
-            <div className="rounded-lg bg-secondary/20 p-4 space-y-4">
+            <div className="rounded-lg bg-secondary/20 p-4 space-y-4 animate-slide-in">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 Dark Engine Results
@@ -122,7 +124,8 @@ const Index = () => {
                   {xengineResults.map((result) => (
                     <div
                       key={result.id}
-                      className="flex flex-col md:flex-row items-start md:items-center gap-4 p-3 rounded-md bg-secondary/30 hover:bg-secondary/40 transition-colors"
+                      className="flex flex-col md:flex-row items-start md:items-center gap-4 p-3 rounded-md 
+                        bg-secondary/30 hover:bg-secondary/40 transition-all duration-300 hover:translate-x-1"
                     >
                       <div className="flex-1 w-full">
                         <h3 className="font-medium text-sm">{result.title}</h3>
@@ -133,12 +136,12 @@ const Index = () => {
                         )}
                         <div className="flex gap-2 mt-1">
                           {result.quality && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs hover:bg-secondary/50 transition-colors">
                               {result.quality}
                             </Badge>
                           )}
                           {result.size && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs hover:bg-secondary/50 transition-colors">
                               {result.size}
                             </Badge>
                           )}
@@ -150,7 +153,11 @@ const Index = () => {
                         rel="noopener noreferrer"
                         className="shrink-0 w-full md:w-auto"
                       >
-                        <Button size="sm" variant="secondary" className="w-full md:w-auto">
+                        <Button 
+                          size="sm" 
+                          variant="secondary" 
+                          className="w-full md:w-auto hover:scale-105 transition-transform"
+                        >
                           Open Link
                         </Button>
                       </a>
@@ -167,19 +174,25 @@ const Index = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center text-muted-foreground">Loading movies...</div>
+          <div className="text-center text-muted-foreground animate-pulse">Loading movies...</div>
         ) : (
           <>
             {/* Movie Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-              {paginatedMovies.map((movie) => (
-                <Card key={movie.id} className="overflow-hidden hover:shadow-lg transition-shadow glass-morphism">
+              {paginatedMovies.map((movie, index) => (
+                <Card 
+                  key={movie.id} 
+                  className="overflow-hidden glass-morphism"
+                  style={{
+                    animationDelay: `${index * 100}ms`,
+                  }}
+                >
                   <Link to={`/movie/${movie.id}`}>
-                    <div className="aspect-[2/3] relative">
+                    <div className="aspect-[2/3] relative overflow-hidden group">
                       <img
                         src={movie.poster_url || "/placeholder.svg"}
                         alt={movie.title}
-                        className="object-cover w-full h-full"
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute top-2 right-2 neo-blur px-2 py-1 rounded-md flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -187,14 +200,14 @@ const Index = () => {
                       </div>
                     </div>
                     <CardContent className="p-4">
-                      <h2 className="font-semibold text-lg mb-2 line-clamp-1 text-foreground">
+                      <h2 className="font-semibold text-lg mb-2 line-clamp-1 text-foreground group-hover:text-white transition-colors">
                         {movie.title} ({format(new Date(movie.release_date), "yyyy")})
                       </h2>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="bg-secondary/50">
+                        <Badge variant="secondary" className="bg-secondary/50 hover:bg-secondary/70 transition-colors">
                           {movie.content_type || "Movie"}
                         </Badge>
-                        <Badge variant="secondary" className="bg-secondary/50">
+                        <Badge variant="secondary" className="bg-secondary/50 hover:bg-secondary/70 transition-colors">
                           {movie.size}
                         </Badge>
                       </div>
@@ -211,7 +224,9 @@ const Index = () => {
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={`transition-all duration-300 hover:scale-105 ${
+                        currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
+                      }`}
                     />
                   </PaginationItem>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -219,7 +234,7 @@ const Index = () => {
                       <PaginationLink
                         onClick={() => setCurrentPage(page)}
                         isActive={currentPage === page}
-                        className="cursor-pointer"
+                        className="cursor-pointer transition-all duration-300 hover:scale-110"
                       >
                         {page}
                       </PaginationLink>
@@ -228,7 +243,9 @@ const Index = () => {
                   <PaginationItem>
                     <PaginationNext
                       onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={`transition-all duration-300 hover:scale-105 ${
+                        currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"
+                      }`}
                     />
                   </PaginationItem>
                 </PaginationContent>

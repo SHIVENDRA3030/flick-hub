@@ -45,7 +45,9 @@
 
 @layer utilities {
   .glass-morphism {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)];
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)] 
+    hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.5)] transition-all duration-300 
+    hover:translate-y-[-4px] hover:bg-white/10;
   }
   
   .neo-blur {
@@ -53,6 +55,41 @@
   }
   
   .text-gradient {
-    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent 
+    hover:from-white hover:via-white/80 hover:to-white/60 transition-all duration-300 
+    hover:scale-[1.02] cursor-default;
+  }
+
+  .animated-search {
+    @apply transition-all duration-300 hover:shadow-lg focus:shadow-lg 
+    hover:bg-secondary/70 focus:bg-secondary/70;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
