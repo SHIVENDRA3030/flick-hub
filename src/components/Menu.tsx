@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const NavMenu = () => {
+  const navigate = useNavigate();
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -30,8 +33,7 @@ const NavMenu = () => {
             variant="ghost"
             className="w-full justify-start text-lg hover:bg-white/10 transition-colors"
             onClick={() => {
-              // You can implement the about modal/page here
-              alert("About section coming soon!");
+              navigate("/about");
             }}
           >
             About
@@ -40,8 +42,7 @@ const NavMenu = () => {
             variant="ghost"
             className="w-full justify-start text-lg hover:bg-white/10 transition-colors"
             onClick={() => {
-              // You can implement the terms modal/page here
-              alert("Terms and Conditions coming soon!");
+              navigate("/terms");
             }}
           >
             Terms and Conditions
