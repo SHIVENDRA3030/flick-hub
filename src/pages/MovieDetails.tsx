@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import ThreeBackground from "@/components/ThreeBackground";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -56,18 +57,27 @@ const MovieDetails = () => {
   const isLoading = isLoadingMovie || isLoadingDownloads || isLoadingStreaming;
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background p-6">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background/50 p-6">
+        <ThreeBackground color="#4a9eff" particleCount={2000} />
+        <div className="text-center">Loading...</div>
+      </div>
+    );
   }
 
   if (!movie) {
     return (
-      <div className="min-h-screen bg-background p-6">Movie not found</div>
+      <div className="min-h-screen bg-background/50 p-6">
+        <ThreeBackground color="#ff4a4a" particleCount={2000} />
+        <div className="text-center">Movie not found</div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background/50 p-6">
+      <ThreeBackground color="#4a9eff" particleCount={2000} />
+      <div className="max-w-7xl mx-auto relative z-10">
         <Button
           variant="ghost"
           className="mb-6"
@@ -83,21 +93,21 @@ const MovieDetails = () => {
             <img
               src={movie.poster_url || "/placeholder.svg"}
               alt={movie.title}
-              className="object-cover w-full h-full rounded-lg"
+              className="object-cover w-full h-full rounded-lg shadow-xl hover:scale-105 transition-transform duration-500"
             />
           </div>
 
           {/* Movie Details */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 backdrop-blur-lg bg-black/20 p-6 rounded-lg">
             <h1 className="text-4xl font-bold mb-4">
               {movie.title} ({format(new Date(movie.release_date), "yyyy")})
             </h1>
             
             <div className="flex flex-wrap gap-2 mb-6">
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="hover:bg-secondary/70 transition-colors">
                 {movie.content_type || "Movie"}
               </Badge>
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="hover:bg-secondary/70 transition-colors">
                 {movie.size}
               </Badge>
             </div>
@@ -114,16 +124,23 @@ const MovieDetails = () => {
                   {downloadLinks.map((link) => (
                     <div
                       key={link.id}
-                      className="flex flex-wrap items-center gap-4 p-4 border rounded-lg"
+                      className="flex flex-wrap items-center gap-4 p-4 border rounded-lg bg-black/20 backdrop-blur-sm
+                        hover:bg-black/30 transition-all duration-300 hover:scale-[1.02]"
                     >
                       {link.label && (
-                        <Badge variant="outline">{link.label}</Badge>
+                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
+                          {link.label}
+                        </Badge>
                       )}
                       {link.quality && (
-                        <Badge variant="outline">{link.quality}</Badge>
+                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
+                          {link.quality}
+                        </Badge>
                       )}
                       {link.size && (
-                        <Badge variant="outline">{link.size}</Badge>
+                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
+                          {link.size}
+                        </Badge>
                       )}
                       <a
                         href={link.url}
@@ -131,7 +148,7 @@ const MovieDetails = () => {
                         rel="noopener noreferrer"
                         className="ml-auto"
                       >
-                        <Button>Download</Button>
+                        <Button className="hover:scale-105 transition-transform">Download</Button>
                       </a>
                     </div>
                   ))}
@@ -147,13 +164,18 @@ const MovieDetails = () => {
                   {streamingLinks.map((link) => (
                     <div
                       key={link.id}
-                      className="flex flex-wrap items-center gap-4 p-4 border rounded-lg"
+                      className="flex flex-wrap items-center gap-4 p-4 border rounded-lg bg-black/20 backdrop-blur-sm
+                        hover:bg-black/30 transition-all duration-300 hover:scale-[1.02]"
                     >
                       {link.provider && (
-                        <Badge variant="outline">{link.provider}</Badge>
+                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
+                          {link.provider}
+                        </Badge>
                       )}
                       {link.quality && (
-                        <Badge variant="outline">{link.quality}</Badge>
+                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
+                          {link.quality}
+                        </Badge>
                       )}
                       <a
                         href={link.url}
@@ -161,7 +183,7 @@ const MovieDetails = () => {
                         rel="noopener noreferrer"
                         className="ml-auto"
                       >
-                        <Button>Watch Now</Button>
+                        <Button className="hover:scale-105 transition-transform">Watch Now</Button>
                       </a>
                     </div>
                   ))}

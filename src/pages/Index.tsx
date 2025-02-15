@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ThreeBackground from "@/components/ThreeBackground";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -74,8 +74,9 @@ const Index = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background/50 p-6">
+      <ThreeBackground color="#ffffff" particleCount={1500} />
+      <div className="max-w-7xl mx-auto relative z-10">
         <h1 className="text-4xl font-bold mb-8 text-gradient animate-slide-in">
           Darkstark
         </h1>
