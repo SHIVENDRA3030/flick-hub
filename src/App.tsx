@@ -9,6 +9,7 @@ import MovieDetails from "./pages/MovieDetails";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Terms from "./pages/Terms";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/movie/:id" element={<MovieDetails />} />
