@@ -21,7 +21,6 @@ const RainbowInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
           className="absolute inset-0 rounded-md animate-rainbow z-0
           [background:linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] 
           bg-[length:200%] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300"
-          style={{ "--speed": "8s" } as React.CSSProperties}
         ></div>
         <div 
           className="absolute inset-0.5 rounded-md bg-secondary/70 backdrop-blur-md z-[1]"

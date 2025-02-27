@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
+import { RainbowInput } from "@/components/ui/rainbow-input";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -88,12 +89,11 @@ const Index = () => {
         <div className="mb-8 space-y-4 animate-fade-in">
           <div className="flex gap-4 items-center flex-wrap">
             <div className="flex-1 max-w-md">
-              <Input
+              <RainbowInput
                 type="search"
                 placeholder="Search movies..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="animated-search bg-secondary/50"
               />
             </div>
             <div className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
