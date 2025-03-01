@@ -1,12 +1,12 @@
 
 import React from "react";
-import { NetflixMovie } from "@/types/netflix";
+import { NetflixContent } from "@/types/netflix";
 import { Button } from "@/components/ui/button";
 import { PlayCircle, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface NetflixHeroProps {
-  featured: NetflixMovie;
+  featured: NetflixContent;
 }
 
 const NetflixHero: React.FC<NetflixHeroProps> = ({ featured }) => {
