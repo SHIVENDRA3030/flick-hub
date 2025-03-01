@@ -1,3 +1,4 @@
+
 export interface NetflixMovie {
   id: string;
   title: string;
@@ -12,6 +13,13 @@ export interface NetflixMovie {
   episode_title: string | null;
   created_at: string | null;
   updated_at: string | null;
+  cast?: string[];
+  awards?: string[];
+  mood?: string[];
+  duration?: string;
+  maturity_rating?: string;
+  episode_count?: number;
+  season_count?: number;
 }
 
 export interface NetflixEmbedCode {
@@ -23,6 +31,7 @@ export interface NetflixEmbedCode {
   episode_title: string | null;
   created_at: string | null;
   updated_at: string | null;
+  duration?: string;
 }
 
 export interface NetflixContent {
@@ -40,4 +49,11 @@ export interface NetflixContent {
   episode_title: string | null;
   created_at: string | null;
   updated_at: string | null;
+  cast?: string[];
+  awards?: string[];
+  mood?: string[];
+  duration?: string;
+  maturity_rating?: string;
+  episode_count?: number;
+  season_count?: number;
 }
