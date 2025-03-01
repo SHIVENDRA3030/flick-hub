@@ -9,6 +9,8 @@ import MovieDetails from "./pages/MovieDetails";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Terms from "./pages/Terms";
+import Netflix from "./pages/Netflix";
+import NetflixPlayer from "./pages/NetflixPlayer";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/netflix" element={<Netflix />} />
+            <Route path="/netflix/:id" element={<NetflixPlayer />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

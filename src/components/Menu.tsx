@@ -1,55 +1,36 @@
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Home, Film, Info, FileText, PlaySquare } from "lucide-react";
 
-const NavMenu = () => {
-  const navigate = useNavigate();
-
+const NavMenu: React.FC = () => {
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed top-4 right-4 z-50 hover:bg-white/10 transition-colors"
-        >
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="bg-background/95 backdrop-blur-xl border-neutral-800">
-        <SheetHeader>
-          <SheetTitle className="text-left text-gradient">Menu</SheetTitle>
-        </SheetHeader>
-        <div className="mt-4 space-y-4">
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-lg hover:bg-white/10 transition-colors"
-            onClick={() => {
-              navigate("/about");
-            }}
-          >
-            About
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-lg hover:bg-white/10 transition-colors"
-            onClick={() => {
-              navigate("/terms");
-            }}
-          >
-            Terms and Conditions
-          </Button>
+    <nav className="p-4 neo-blur backdrop-blur-md z-50">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <Link to="/" className="text-xl font-bold hover:text-primary transition-colors">
+          Darkstark
+        </Link>
+
+        <div className="flex gap-4">
+          <Link to="/" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <Home className="w-4 h-4" />
+            <span className="hidden md:inline">Home</span>
+          </Link>
+          <Link to="/netflix" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <PlaySquare className="w-4 h-4" />
+            <span className="hidden md:inline">Netflix</span>
+          </Link>
+          <Link to="/about" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <Info className="w-4 h-4" />
+            <span className="hidden md:inline">About</span>
+          </Link>
+          <Link to="/terms" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <FileText className="w-4 h-4" />
+            <span className="hidden md:inline">Terms</span>
+          </Link>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </nav>
   );
 };
 
