@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +20,7 @@ const NetflixPlayer: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isMuted, setIsMuted] = useState(false);
+  const [processedEmbedCode, setProcessedEmbedCode] = useState<string>("");
 
   const { data: movie, isLoading: isLoadingMovie } = useQuery({
     queryKey: ["netflix-movie", id],
@@ -44,6 +44,8 @@ const NetflixPlayer: React.FC = () => {
         data.awards = data.awards || ["2021 Emmy Nominee"];
         data.episode_count = data.episode_count || 8;
         data.season_count = data.season_count || 5;
+        data.resolution = data.resolution || "1280x536";
+        data.runtime = data.runtime || "02:10:30";
       }
       
       return data as NetflixMovie | null;
@@ -65,12 +67,68 @@ const NetflixPlayer: React.FC = () => {
       
       if (data) {
         data.duration = data.duration || "48m";
+        data.embed_type = data.embed_type || "default";
+        data.embed_url = data.embed_url || "https://ghbrisk.com/e/rtj5xwlvq88y";
+        data.thumbnail_url = data.thumbnail_url || "https://akumachi.com/rtj5xwlvq88y_t.jpg";
+        data.resolution = data.resolution || "1280x536";
+        data.runtime = data.runtime || "02:10:30";
       }
       
       return data as NetflixEmbedCode | null;
     },
     enabled: !!movie,
   });
+
+  useEffect(() => {
+    if (embedCode) {
+      processEmbedCode(embedCode);
+    }
+  }, [embedCode]);
+
+  const processEmbedCode = (embedData: NetflixEmbedCode) => {
+    // If embed_code already exists, respect it first
+    if (embedData.embed_code) {
+      setProcessedEmbedCode(embedData.embed_code);
+      return;
+    }
+
+    // Otherwise generate based on embed_type
+    const type = embedData.embed_type || 'default';
+    const url = embedData.embed_url || '';
+    const thumbnail = embedData.thumbnail_url || '';
+    const title = movie?.title || '';
+    const resolution = embedData.resolution || movie?.resolution || '';
+    const runtime = embedData.runtime || movie?.runtime || '';
+
+    let code = '';
+    
+    switch (type) {
+      case 'iframe':
+        code = `<iframe src="${url}" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe>`;
+        break;
+      case 'forum':
+        code = `[URL=${url}][IMG]${thumbnail}[/IMG]
+        ${title}[/URL]
+        [${resolution}, ${runtime}]`;
+        // For display purposes, we convert forum code to HTML
+        code = `<div class="forum-embed">
+          <a href="${url}" target="_blank">
+            <img src="${thumbnail}" alt="${title}" style="max-width:100%;">
+            <div>${title}</div>
+            <div>[${resolution}, ${runtime}]</div>
+          </a>
+        </div>`;
+        break;
+      case 'html':
+        code = `<a href="${url}"><img src="${thumbnail}" border="0"><br>${title}</a><br>[${resolution}, ${runtime}]`;
+        break;
+      default:
+        // Default to iframe if nothing else is specified
+        code = `<iframe src="${url}" frameborder="0" width="100%" height="100%" allowfullscreen></iframe>`;
+    }
+
+    setProcessedEmbedCode(code);
+  };
 
   // Mock episodes data
   const episodes = [
@@ -122,10 +180,10 @@ const NetflixPlayer: React.FC = () => {
       <div className="relative">
         {/* Video Player */}
         <div className="w-full aspect-video bg-black relative">
-          {embedCode?.embed_code ? (
+          {processedEmbedCode ? (
             <div 
               className="w-full h-full"
-              dangerouslySetInnerHTML={{ __html: embedCode.embed_code }} 
+              dangerouslySetInnerHTML={{ __html: processedEmbedCode }} 
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -202,6 +260,16 @@ const NetflixPlayer: React.FC = () => {
           <Badge variant="outline" className="border-gray-600 text-gray-300">
             <Volume2 className="h-3 w-3 mr-1" /> 5.1
           </Badge>
+          {movie.resolution && (
+            <Badge variant="outline" className="border-gray-600 text-gray-300">
+              {movie.resolution}
+            </Badge>
+          )}
+          {movie.runtime && (
+            <Badge variant="outline" className="border-gray-600 text-gray-300">
+              {movie.runtime}
+            </Badge>
+          )}
         </div>
         
         {/* Awards */}
@@ -255,7 +323,7 @@ const NetflixPlayer: React.FC = () => {
             {episodes.map((episode, index) => (
               <div key={index} className="flex gap-4 border-b border-gray-800 pb-4">
                 <img 
-                  src={movie.poster_url || "https://via.placeholder.com/120x68"} 
+                  src={movie.poster_url || embedCode?.thumbnail_url || "https://via.placeholder.com/120x68"} 
                   alt={episode.title}
                   className="w-32 h-20 object-cover rounded"
                 />
