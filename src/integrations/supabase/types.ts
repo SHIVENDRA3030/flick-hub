@@ -104,6 +104,57 @@ export type Database = {
         }
         Relationships: []
       }
+      netflix_content: {
+        Row: {
+          content_type: string
+          created_at: string | null
+          description: string | null
+          embed_code: string
+          episode: number | null
+          episode_title: string | null
+          genre: string[] | null
+          id: string
+          is_featured: boolean | null
+          poster_url: string | null
+          release_year: number | null
+          season: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string | null
+          description?: string | null
+          embed_code: string
+          episode?: number | null
+          episode_title?: string | null
+          genre?: string[] | null
+          id?: string
+          is_featured?: boolean | null
+          poster_url?: string | null
+          release_year?: number | null
+          season?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string | null
+          description?: string | null
+          embed_code?: string
+          episode?: number | null
+          episode_title?: string | null
+          genre?: string[] | null
+          id?: string
+          is_featured?: boolean | null
+          poster_url?: string | null
+          release_year?: number | null
+          season?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       streaming_links: {
         Row: {
           created_at: string | null
