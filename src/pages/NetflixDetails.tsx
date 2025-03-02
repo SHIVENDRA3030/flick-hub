@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
 import { toast } from "sonner";
+
 const NetflixDetails = () => {
   const {
     id
@@ -17,6 +18,7 @@ const NetflixDetails = () => {
     id: string;
   }>();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
   const {
     data: content,
     isLoading,
@@ -39,11 +41,13 @@ const NetflixDetails = () => {
       return data as NetflixContent;
     }
   });
+
   if (isLoading) {
     return <div className="min-h-screen bg-[#141414] text-white flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"></div>
       </div>;
   }
+
   if (error || !content) {
     return <div className="min-h-screen bg-[#141414] text-white p-6">
         <div className="max-w-4xl mx-auto text-center py-12">
@@ -60,6 +64,7 @@ const NetflixDetails = () => {
         </div>
       </div>;
   }
+
   const getEmbedHtml = () => {
     if (content?.embed_code) {
       return content.embed_code.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
@@ -68,7 +73,9 @@ const NetflixDetails = () => {
     }
     return null;
   };
+
   const embedHtml = getEmbedHtml();
+
   return <div className={`min-h-screen bg-[#141414] text-white ${isFullscreen ? 'overflow-hidden' : ''}`}>
       {!isFullscreen && <>
           <ThreeBackground color="#111111" particleCount={1000} />
@@ -96,10 +103,6 @@ const NetflixDetails = () => {
                 <p className="text-gray-400">No playback source available</p>
               </div>
             </div>}
-          
-          <Button className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/80 z-10" onClick={() => setIsFullscreen(!isFullscreen)}>
-            {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-          </Button>
         </div>
 
         {!isFullscreen && <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -218,4 +221,5 @@ const NetflixDetails = () => {
       </div>
     </div>;
 };
+
 export default NetflixDetails;
