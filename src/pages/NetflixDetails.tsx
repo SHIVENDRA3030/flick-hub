@@ -10,46 +10,42 @@ import { Separator } from "@/components/ui/separator";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
 import { toast } from "sonner";
-
 const NetflixDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  const { data: content, isLoading, error } = useQuery({
+  const {
+    data: content,
+    isLoading,
+    error
+  } = useQuery({
     queryKey: ["netflix-content", id],
     queryFn: async () => {
       if (!id) throw new Error("Content ID is required");
-
-      const { data, error } = await supabase
-        .from("netflix_content")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-
+      const {
+        data,
+        error
+      } = await supabase.from("netflix_content").select("*").eq("id", id).maybeSingle();
       if (error) {
         toast.error("Failed to load content: " + error.message);
         throw error;
       }
-      
       if (!data) {
         throw new Error("Content not found");
       }
-      
       return data as NetflixContent;
-    },
+    }
   });
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#141414] text-white flex items-center justify-center">
+    return <div className="min-h-screen bg-[#141414] text-white flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"></div>
-      </div>
-    );
+      </div>;
   }
-
   if (error || !content) {
-    return (
-      <div className="min-h-screen bg-[#141414] text-white p-6">
+    return <div className="min-h-screen bg-[#141414] text-white p-6">
         <div className="max-w-4xl mx-auto text-center py-12">
           <Film className="w-16 h-16 text-red-600 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-4">Content Not Found</h1>
@@ -62,10 +58,8 @@ const NetflixDetails = () => {
             </Button>
           </Link>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   const getEmbedHtml = () => {
     if (content?.embed_code) {
       return content.embed_code.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
@@ -74,136 +68,96 @@ const NetflixDetails = () => {
     }
     return null;
   };
-
   const embedHtml = getEmbedHtml();
-
-  return (
-    <div className={`min-h-screen bg-[#141414] text-white ${isFullscreen ? 'overflow-hidden' : ''}`}>
-      {!isFullscreen && (
-        <>
+  return <div className={`min-h-screen bg-[#141414] text-white ${isFullscreen ? 'overflow-hidden' : ''}`}>
+      {!isFullscreen && <>
           <ThreeBackground color="#111111" particleCount={1000} />
           <NavMenu />
-        </>
-      )}
+        </>}
 
       <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'max-w-7xl mx-auto p-6 relative z-10'}`}>
-        {!isFullscreen && (
-          <div className="mb-6">
+        {!isFullscreen && <div className="mb-6">
             <Link to="/netflix">
               <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
                 <ArrowLeft className="mr-2" /> Back to Browse
               </Button>
             </Link>
-          </div>
-        )}
+          </div>}
 
         {/* Video Player */}
-        <div 
-          className={`relative overflow-hidden rounded-lg bg-black ${
-            isFullscreen ? 'w-full h-full' : 'aspect-video mb-8'
-          }`}
-        >
-          {embedHtml ? (
-            <div 
-              className="w-full h-full relative" 
-              style={{ paddingBottom: isFullscreen ? '0' : '56.25%' }}
-              dangerouslySetInnerHTML={{ __html: embedHtml }}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full bg-gray-900">
+        <div className={`relative overflow-hidden rounded-lg bg-black ${isFullscreen ? 'w-full h-full' : 'aspect-video mb-8'}`}>
+          {embedHtml ? <div style={{
+          paddingBottom: isFullscreen ? '0' : '56.25%'
+        }} dangerouslySetInnerHTML={{
+          __html: embedHtml
+        }} className="w-full h-full relative bg-inherit px-[94px] py-[39px] my-[0px] mx-px rounded-3xl" /> : <div className="flex items-center justify-center h-full bg-gray-900">
               <div className="text-center">
                 <Film className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-400">No playback source available</p>
               </div>
-            </div>
-          )}
+            </div>}
           
-          <Button
-            className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/80 z-10"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-          >
+          <Button className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/80 z-10" onClick={() => setIsFullscreen(!isFullscreen)}>
             {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
           </Button>
         </div>
 
-        {!isFullscreen && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {!isFullscreen && <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
               
-              {content.release_year && (
-                <div className="flex items-center gap-2 text-gray-400 mb-4">
+              {content.release_year && <div className="flex items-center gap-2 text-gray-400 mb-4">
                   <Calendar className="w-4 h-4" />
                   <span>{content.release_year}</span>
                   
-                  {content.runtime && (
-                    <>
+                  {content.runtime && <>
                       <span className="mx-2">•</span>
                       <Clock className="w-4 h-4" />
                       <span>{content.runtime}</span>
-                    </>
-                  )}
+                    </>}
                   
-                  {content.resolution && (
-                    <>
+                  {content.resolution && <>
                       <span className="mx-2">•</span>
                       <Badge variant="outline" className="border-gray-600">
                         {content.resolution}
                       </Badge>
-                    </>
-                  )}
-                </div>
-              )}
+                    </>}
+                </div>}
               
-              {content.description && (
-                <p className="text-gray-300 mb-6">{content.description}</p>
-              )}
+              {content.description && <p className="text-gray-300 mb-6">{content.description}</p>}
               
               {/* Metadata */}
               <div className="space-y-4">
-                {content.genre && content.genre.length > 0 && (
-                  <div>
+                {content.genre && content.genre.length > 0 && <div>
                     <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
                     <div className="flex flex-wrap gap-2">
-                      {content.genre.map((genre, index) => (
-                        <Badge key={index} className="bg-gray-800 hover:bg-gray-700">
+                      {content.genre.map((genre, index) => <Badge key={index} className="bg-gray-800 hover:bg-gray-700">
                           {genre}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
-                  </div>
-                )}
+                  </div>}
                 
-                {content.actors && content.actors.length > 0 && (
-                  <div>
+                {content.actors && content.actors.length > 0 && <div>
                     <h3 className="text-sm font-semibold text-gray-400 mb-2">CAST</h3>
                     <div className="flex flex-wrap gap-2">
-                      {content.actors.map((actor, index) => (
-                        <Badge key={index} variant="outline" className="border-gray-600 flex items-center gap-1">
+                      {content.actors.map((actor, index) => <Badge key={index} variant="outline" className="border-gray-600 flex items-center gap-1">
                           <User className="w-3 h-3" /> {actor}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
-                  </div>
-                )}
+                  </div>}
                 
-                {content.awards && content.awards.length > 0 && (
-                  <div>
+                {content.awards && content.awards.length > 0 && <div>
                     <h3 className="text-sm font-semibold text-gray-400 mb-2">AWARDS</h3>
                     <div className="flex flex-wrap gap-2">
-                      {content.awards.map((award, index) => (
-                        <Badge key={index} variant="outline" className="border-yellow-600 text-yellow-400 flex items-center gap-1">
+                      {content.awards.map((award, index) => <Badge key={index} variant="outline" className="border-yellow-600 text-yellow-400 flex items-center gap-1">
                           <Award className="w-3 h-3" /> {award}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
               
               {/* TV Series info */}
-              {content.content_type === "series" && (
-                <div className="mt-8">
+              {content.content_type === "series" && <div className="mt-8">
                   <Separator className="bg-gray-800 my-6" />
                   <div className="flex items-center gap-4 mb-4">
                     <h2 className="text-xl font-bold">
@@ -211,19 +165,14 @@ const NetflixDetails = () => {
                       {content.episode && content.season && ` | `}
                       {content.episode && `Episode ${content.episode}`}
                     </h2>
-                    {content.episode_title && (
-                      <span className="text-gray-400">"{content.episode_title}"</span>
-                    )}
+                    {content.episode_title && <span className="text-gray-400">"{content.episode_title}"</span>}
                   </div>
                   
-                  {content.season_count && content.episode_count && (
-                    <p className="text-sm text-gray-400 mb-4">
+                  {content.season_count && content.episode_count && <p className="text-sm text-gray-400 mb-4">
                       {content.season_count} {content.season_count === 1 ? "Season" : "Seasons"} | 
                       {content.episode_count} {content.episode_count === 1 ? "Episode" : "Episodes"} total
-                    </p>
-                  )}
-                </div>
-              )}
+                    </p>}
+                </div>}
             </div>
             
             <div>
@@ -234,52 +183,39 @@ const NetflixDetails = () => {
                 </h3>
                 
                 <div className="space-y-4">
-                  {content.maturity_rating && (
-                    <div>
+                  {content.maturity_rating && <div>
                       <h4 className="text-sm font-semibold text-gray-400 mb-1">RATING</h4>
                       <Badge className="bg-gray-800">{content.maturity_rating}</Badge>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {content.duration && (
-                    <div>
+                  {content.duration && <div>
                       <h4 className="text-sm font-semibold text-gray-400 mb-1">DURATION</h4>
                       <p className="text-sm flex items-center gap-2">
                         <Clock className="w-4 h-4 text-gray-400" />
                         {content.duration}
                       </p>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {content.resolution && (
-                    <div>
+                  {content.resolution && <div>
                       <h4 className="text-sm font-semibold text-gray-400 mb-1">QUALITY</h4>
                       <Badge variant="outline" className="border-gray-600">
                         {content.resolution}
                       </Badge>
-                    </div>
-                  )}
+                    </div>}
                   
-                  {content.mood && content.mood.length > 0 && (
-                    <div>
+                  {content.mood && content.mood.length > 0 && <div>
                       <h4 className="text-sm font-semibold text-gray-400 mb-1">MOOD</h4>
                       <div className="flex flex-wrap gap-2">
-                        {content.mood.map((mood, index) => (
-                          <Badge key={index} variant="secondary" className="bg-gray-800">
+                        {content.mood.map((mood, index) => <Badge key={index} variant="secondary" className="bg-gray-800">
                             {mood}
-                          </Badge>
-                        ))}
+                          </Badge>)}
                       </div>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default NetflixDetails;
