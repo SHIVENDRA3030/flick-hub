@@ -104,6 +104,93 @@ export type Database = {
         }
         Relationships: []
       }
+      netflix_content: {
+        Row: {
+          actors: string[] | null
+          awards: string[] | null
+          content_type: string | null
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          embed_code: string | null
+          embed_type: string | null
+          embed_url: string | null
+          episode: number | null
+          episode_count: number | null
+          episode_title: string | null
+          genre: string[] | null
+          id: string
+          is_featured: boolean | null
+          maturity_rating: string | null
+          mood: string[] | null
+          poster_url: string | null
+          release_year: number | null
+          resolution: string | null
+          runtime: string | null
+          season: number | null
+          season_count: number | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          actors?: string[] | null
+          awards?: string[] | null
+          content_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          embed_code?: string | null
+          embed_type?: string | null
+          embed_url?: string | null
+          episode?: number | null
+          episode_count?: number | null
+          episode_title?: string | null
+          genre?: string[] | null
+          id?: string
+          is_featured?: boolean | null
+          maturity_rating?: string | null
+          mood?: string[] | null
+          poster_url?: string | null
+          release_year?: number | null
+          resolution?: string | null
+          runtime?: string | null
+          season?: number | null
+          season_count?: number | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          actors?: string[] | null
+          awards?: string[] | null
+          content_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          embed_code?: string | null
+          embed_type?: string | null
+          embed_url?: string | null
+          episode?: number | null
+          episode_count?: number | null
+          episode_title?: string | null
+          genre?: string[] | null
+          id?: string
+          is_featured?: boolean | null
+          maturity_rating?: string | null
+          mood?: string[] | null
+          poster_url?: string | null
+          release_year?: number | null
+          resolution?: string | null
+          runtime?: string | null
+          season?: number | null
+          season_count?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       streaming_links: {
         Row: {
           created_at: string | null
@@ -186,7 +273,52 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      gtrgm_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: {
+          "": unknown
+        }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      set_limit: {
+        Args: {
+          "": number
+        }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: {
+          "": string
+        }
+        Returns: string[]
+      }
     }
     Enums: {
       [_ in never]: never

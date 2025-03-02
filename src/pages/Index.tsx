@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Star, Search } from "lucide-react";
+import { Star, Search, Film } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Movie, XenineLink } from "@/types/movie";
@@ -83,6 +83,27 @@ const Index = () => {
         <h1 className="text-4xl font-bold mb-8 text-gradient animate-slide-in">
           Darkstark
         </h1>
+        
+        {/* Netflix Promo Section */}
+        <div className="mb-8 bg-gradient-to-r from-red-700 to-black p-6 rounded-lg shadow-lg animate-fade-in">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                <Film className="w-6 h-6" />
+                STREAMARK - Netflix Style Experience
+              </h2>
+              <p className="text-gray-200 mb-4 max-w-2xl">
+                Check out our new Netflix-style streaming section with exclusive content and embedded players.
+                Watch movies and shows directly in your browser!
+              </p>
+            </div>
+            <Link to="/netflix">
+              <Button className="bg-white text-red-700 hover:bg-gray-200 transition-colors px-6">
+                Try STREAMARK
+              </Button>
+            </Link>
+          </div>
+        </div>
         
         {/* Search Section */}
         <div className="mb-8 space-y-4 animate-fade-in">
