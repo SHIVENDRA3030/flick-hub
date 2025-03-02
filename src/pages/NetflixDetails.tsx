@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -67,10 +66,16 @@ const NetflixDetails = () => {
     );
   }
 
-  const embedHtml = content.embed_code || 
-    (content.embed_url ? 
-      `<iframe src="${content.embed_url}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>` 
-      : null);
+  const getEmbedHtml = () => {
+    if (content?.embed_code) {
+      return content.embed_code.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
+    } else if (content?.embed_url) {
+      return `<iframe src="${content.embed_url}" style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" allowfullscreen></iframe>`;
+    }
+    return null;
+  };
+
+  const embedHtml = getEmbedHtml();
 
   return (
     <div className={`min-h-screen bg-[#141414] text-white ${isFullscreen ? 'overflow-hidden' : ''}`}>
@@ -100,7 +105,8 @@ const NetflixDetails = () => {
         >
           {embedHtml ? (
             <div 
-              className="w-full h-full"
+              className="w-full h-full relative" 
+              style={{ paddingBottom: isFullscreen ? '0' : '56.25%' }}
               dangerouslySetInnerHTML={{ __html: embedHtml }}
             />
           ) : (
