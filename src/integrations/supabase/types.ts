@@ -104,6 +104,33 @@ export type Database = {
         }
         Relationships: []
       }
+      netflix_movies: {
+        Row: {
+          description: string | null
+          embed_code: string | null
+          id: number
+          poster_url: string | null
+          title: string
+          upload_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          embed_code?: string | null
+          id?: number
+          poster_url?: string | null
+          title: string
+          upload_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          embed_code?: string | null
+          id?: number
+          poster_url?: string | null
+          title?: string
+          upload_at?: string | null
+        }
+        Relationships: []
+      }
       streaming_links: {
         Row: {
           created_at: string | null
