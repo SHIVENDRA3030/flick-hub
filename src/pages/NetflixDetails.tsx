@@ -79,7 +79,7 @@ const NetflixDetails = () => {
         {!isFullscreen && <div className="mb-6">
             <Link to="/netflix">
               <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
-                <ArrowLeft className="mr-2" /> Back to Browse
+                <ArrowLeft className="mr-2 my-[-57px]" /> Back to Browse
               </Button>
             </Link>
           </div>}
