@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -47,7 +48,15 @@ const NetflixDetails = () => {
   const { 
     data: episodes = [], 
     isLoading: isLoadingEpisodes 
-  } = useEpisodes(content?.content_type === "series" ? id : undefined);
+  } = useEpisodes(id); // Use ID directly regardless of content type
+  
+  useEffect(() => {
+    // Log content type and episodes for debugging
+    if (content) {
+      console.log("Content type:", content.content_type);
+      console.log("Episodes:", episodes);
+    }
+  }, [content, episodes]);
 
   const handleSelectEpisode = (episode: Episode) => {
     setActiveEpisodeId(episode.id);
@@ -102,7 +111,8 @@ const NetflixDetails = () => {
       </div>;
   }
 
-  const isSeriesWithEpisodes = content.content_type === "series" && episodes.length > 0;
+  // Always check if episodes are available, regardless of content type
+  const hasEpisodes = episodes.length > 0;
 
   return (
     <div className="min-h-screen bg-[#141414] text-white">
@@ -118,7 +128,7 @@ const NetflixDetails = () => {
           </Link>
         </div>
 
-        {isSeriesWithEpisodes ? (
+        {hasEpisodes ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video">
               {embedHtml ? (

@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Episode } from "@/components/EpisodeList";
+import { toast } from "sonner";
 
 export const useEpisodes = (netflixContentId: string | undefined) => {
   return useQuery({
@@ -19,10 +20,12 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
 
       if (error) {
         console.error("Error fetching episodes:", error);
+        toast.error("Failed to load episodes: " + error.message);
         throw error;
       }
       
-      return data as Episode[];
+      console.log("Episodes fetched:", data?.length || 0);
+      return data as Episode[] || [];
     },
     enabled: !!netflixContentId,
   });

@@ -28,6 +28,14 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
   // Find the active episode to display at the top
   const activeEpisode = episodes.find(ep => ep.id === activeEpisodeId);
 
+  if (episodes.length === 0) {
+    return (
+      <div className="p-4 bg-gray-800 rounded-md text-center">
+        <p>No episodes available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col space-y-4">
       {activeEpisode && (
