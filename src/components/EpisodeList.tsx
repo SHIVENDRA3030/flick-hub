@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Play, Info } from "lucide-react";
+import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface Episode {
@@ -30,10 +30,8 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
 
   if (episodes.length === 0) {
     return (
-      <div className="p-6 bg-gray-800 rounded-md text-center">
-        <Info className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-lg">No episodes available</p>
-        <p className="text-sm text-gray-400 mt-2">Episodes will appear here when available</p>
+      <div className="p-4 bg-gray-800 rounded-md text-center">
+        <p>No episodes available</p>
       </div>
     );
   }

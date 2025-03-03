@@ -19,7 +19,6 @@ const NetflixDetails = () => {
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
   
-  // Fetch content details
   const {
     data: content,
     isLoading,
@@ -41,27 +40,25 @@ const NetflixDetails = () => {
       if (!data) {
         throw new Error("Content not found");
       }
-      console.log("Content loaded:", data.title, "Type:", data.content_type);
       return data as NetflixContent;
     }
   });
 
-  // Fetch episodes (will use sample data if none found)
+  // Only fetch episodes if the content is a series
   const { 
     data: episodes = [], 
     isLoading: isLoadingEpisodes 
-  } = useEpisodes(id);
+  } = useEpisodes(id); // Use ID directly regardless of content type
   
-  // Debug logging
   useEffect(() => {
-    console.log("Current content type:", content?.content_type);
-    console.log("Episodes loaded:", episodes?.length);
-    console.log("Episodes data:", episodes);
+    // Log content type and episodes for debugging
+    if (content) {
+      console.log("Content type:", content.content_type);
+      console.log("Episodes:", episodes);
+    }
   }, [content, episodes]);
 
-  // Handle episode selection
   const handleSelectEpisode = (episode: Episode) => {
-    console.log("Episode selected:", episode.episode_name);
     setActiveEpisodeId(episode.id);
     setCurrentEmbedCode(episode.embed_code);
     // Scroll to video player
@@ -71,7 +68,6 @@ const NetflixDetails = () => {
   // Auto-select first episode when episodes are loaded
   useEffect(() => {
     if (episodes.length > 0 && !activeEpisodeId) {
-      console.log("Auto-selecting first episode");
       handleSelectEpisode(episodes[0]);
     }
   }, [episodes, activeEpisodeId]);
@@ -115,7 +111,7 @@ const NetflixDetails = () => {
       </div>;
   }
 
-  // Check if we have episodes to display
+  // Always check if episodes are available, regardless of content type
   const hasEpisodes = episodes.length > 0;
 
   return (
