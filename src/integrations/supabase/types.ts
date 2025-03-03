@@ -232,6 +232,41 @@ export type Database = {
           },
         ]
       }
+      web_series_episodes: {
+        Row: {
+          created_at: string | null
+          embed_code: string
+          episode_name: string
+          episode_number: number
+          id: string
+          netflix_content_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          embed_code: string
+          episode_name: string
+          episode_number: number
+          id?: string
+          netflix_content_id: string
+        }
+        Update: {
+          created_at?: string | null
+          embed_code?: string
+          episode_name?: string
+          episode_number?: number
+          id?: string
+          netflix_content_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_series_episodes_netflix_content_id_fkey"
+            columns: ["netflix_content_id"]
+            isOneToOne: false
+            referencedRelation: "netflix_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xenine_links: {
         Row: {
           created_at: string | null
