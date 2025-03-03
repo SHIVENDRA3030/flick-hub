@@ -43,6 +43,7 @@ const NetflixDetails = () => {
     }
   });
 
+  // Only fetch episodes if the content is a series
   const { 
     data: episodes = [], 
     isLoading: isLoadingEpisodes 
@@ -51,15 +52,18 @@ const NetflixDetails = () => {
   const handleSelectEpisode = (episode: Episode) => {
     setActiveEpisodeId(episode.id);
     setCurrentEmbedCode(episode.embed_code);
+    // Scroll to video player
     document.getElementById("video-player")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Auto-select first episode when episodes are loaded
   useEffect(() => {
     if (episodes.length > 0 && !activeEpisodeId) {
       handleSelectEpisode(episodes[0]);
     }
   }, [episodes, activeEpisodeId]);
 
+  // Get the HTML to embed
   const getEmbedHtml = () => {
     if (currentEmbedCode) {
       return currentEmbedCode.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
@@ -98,6 +102,8 @@ const NetflixDetails = () => {
       </div>;
   }
 
+  const isSeriesWithEpisodes = content.content_type === "series" && episodes.length > 0;
+
   return (
     <div className="min-h-screen bg-[#141414] text-white">
       <ThreeBackground color="#111111" particleCount={1000} />
@@ -112,9 +118,9 @@ const NetflixDetails = () => {
           </Link>
         </div>
 
-        {content.content_type === "series" && episodes.length > 0 ? (
-          <div className="grid grid-cols-1 gap-8">
-            <div id="video-player" className="relative overflow-hidden rounded-lg bg-black aspect-video">
+        {isSeriesWithEpisodes ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video">
               {embedHtml ? (
                 <div 
                   style={{ paddingBottom: '56.25%' }} 
@@ -129,34 +135,43 @@ const NetflixDetails = () => {
             </div>
             
             <div className="mt-2">
-              <EpisodeList 
-                episodes={episodes} 
-                activeEpisodeId={activeEpisodeId} 
-                onSelectEpisode={handleSelectEpisode}
-                seriesTitle={content.title}
-                season={content.season}
-              />
+              <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
+              {content.description && <p className="text-gray-300 mb-4">{content.description}</p>}
+              
+              {isLoadingEpisodes ? (
+                <div className="space-y-2">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
+                  ))}
+                </div>
+              ) : (
+                <EpisodeList 
+                  episodes={episodes} 
+                  activeEpisodeId={activeEpisodeId} 
+                  onSelectEpisode={handleSelectEpisode}
+                  seriesTitle={content.title}
+                  season={content.season}
+                />
+              )}
             </div>
           </div>
         ) : (
-          <div id="video-player" className="relative overflow-hidden rounded-lg bg-black aspect-video mb-8">
-            {embedHtml ? (
-              <div 
-                style={{ paddingBottom: '56.25%' }} 
-                dangerouslySetInnerHTML={{ __html: embedHtml }} 
-                className="w-full h-full relative"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-gray-900">
-                <Play className="w-20 h-20 text-white opacity-70" />
-              </div>
-            )}
-          </div>
-        )}
-
-        {(content.content_type !== "series" || episodes.length === 0) && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
+            <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video mb-8">
+              {embedHtml ? (
+                <div 
+                  style={{ paddingBottom: '56.25%' }} 
+                  dangerouslySetInnerHTML={{ __html: embedHtml }} 
+                  className="w-full h-full relative"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-gray-900">
+                  <Play className="w-20 h-20 text-white opacity-70" />
+                </div>
+              )}
+            </div>
+            
+            <div>
               <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
               
               {content.release_year && (
@@ -224,109 +239,6 @@ const NetflixDetails = () => {
                     </div>
                   </div>
                 )}
-              </div>
-              
-              {content.content_type === "series" && (
-                <div className="mt-8">
-                  <Separator className="bg-gray-800 my-6" />
-                  <div className="flex items-center gap-4 mb-4">
-                    <h2 className="text-xl font-bold">
-                      {content.season && `Season ${content.season}`}
-                      {content.episode && content.season && ` | `}
-                      {content.episode && `Episode ${content.episode}`}
-                    </h2>
-                    {activeEpisodeId ? (
-                      <span className="text-gray-400">
-                        {episodes.find(ep => ep.id === activeEpisodeId)?.episode_name || content.episode_title}
-                      </span>
-                    ) : (
-                      content.episode_title && <span className="text-gray-400">"{content.episode_title}"</span>
-                    )}
-                  </div>
-                  
-                  {content.season_count && content.episode_count && (
-                    <p className="text-sm text-gray-400 mb-4">
-                      {content.season_count} {content.season_count === 1 ? "Season" : "Seasons"} | {content.episode_count} {content.episode_count === 1 ? "Episode" : "Episodes"} total
-                    </p>
-                  )}
-
-                  {content.content_type === "series" && (
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Play className="w-5 h-5 text-red-600" />
-                        Episodes
-                      </h3>
-                      
-                      {isLoadingEpisodes ? (
-                        <div className="space-y-2">
-                          {[...Array(5)].map((_, i) => (
-                            <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
-                          ))}
-                        </div>
-                      ) : episodes.length > 0 ? (
-                        <EpisodeList 
-                          episodes={episodes} 
-                          activeEpisodeId={activeEpisodeId} 
-                          onSelectEpisode={handleSelectEpisode} 
-                        />
-                      ) : (
-                        <div className="text-center py-6 bg-gray-800/30 rounded-md">
-                          <p className="text-gray-400">No episodes available</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <div>
-              <div className="bg-gray-900 rounded-lg p-6">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Film className="w-5 h-5 text-red-600" />
-                  <span>Stream Details</span>
-                </h3>
-                
-                <div className="space-y-4">
-                  {content.maturity_rating && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-400 mb-1">RATING</h4>
-                      <Badge className="bg-gray-800">{content.maturity_rating}</Badge>
-                    </div>
-                  )}
-                  
-                  {content.duration && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-400 mb-1">DURATION</h4>
-                      <p className="text-sm flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        {content.duration}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {content.resolution && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-400 mb-1">QUALITY</h4>
-                      <Badge variant="outline" className="border-gray-600">
-                        {content.resolution}
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  {content.mood && content.mood.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-400 mb-1">MOOD</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {content.mood.map((mood, index) => (
-                          <Badge key={index} variant="secondary" className="bg-gray-800">
-                            {mood}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
