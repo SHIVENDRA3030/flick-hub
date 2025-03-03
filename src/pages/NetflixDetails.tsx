@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Clock, Film, Award, Star, Calendar, User, Play } from "lucide-react";
@@ -54,11 +54,11 @@ const NetflixDetails = () => {
     document.getElementById("video-player")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useState(() => {
+  useEffect(() => {
     if (episodes.length > 0 && !activeEpisodeId) {
       handleSelectEpisode(episodes[0]);
     }
-  });
+  }, [episodes, activeEpisodeId]);
 
   const getEmbedHtml = () => {
     if (currentEmbedCode) {
@@ -112,198 +112,225 @@ const NetflixDetails = () => {
           </Link>
         </div>
 
-        <div id="video-player" className="relative overflow-hidden rounded-lg bg-black aspect-video mb-8">
-          {embedHtml ? (
-            <div 
-              style={{ paddingBottom: '56.25%' }} 
-              dangerouslySetInnerHTML={{ __html: embedHtml }} 
-              className="w-full h-full relative"
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full bg-gray-900">
-              <div className="text-center">
-                <Film className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">No playback source available</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
-            
-            {content.release_year && (
-              <div className="flex items-center gap-2 text-gray-400 mb-4">
-                <Calendar className="w-4 h-4" />
-                <span>{content.release_year}</span>
-                
-                {content.runtime && (
-                  <>
-                    <span className="mx-2">•</span>
-                    <Clock className="w-4 h-4" />
-                    <span>{content.runtime}</span>
-                  </>
-                )}
-                
-                {content.resolution && (
-                  <>
-                    <span className="mx-2">•</span>
-                    <Badge variant="outline" className="border-gray-600">
-                      {content.resolution}
-                    </Badge>
-                  </>
-                )}
-              </div>
-            )}
-            
-            {content.description && <p className="text-gray-300 mb-6">{content.description}</p>}
-            
-            <div className="space-y-4">
-              {content.genre && content.genre.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {content.genre.map((genre, index) => (
-                      <Badge key={index} className="bg-gray-800 hover:bg-gray-700">
-                        {genre}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {content.actors && content.actors.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">CAST</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {content.actors.map((actor, index) => (
-                      <Badge key={index} variant="outline" className="border-gray-600 flex items-center gap-1">
-                        <User className="w-3 h-3" /> {actor}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {content.awards && content.awards.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">AWARDS</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {content.awards.map((award, index) => (
-                      <Badge key={index} variant="outline" className="border-yellow-600 text-yellow-400 flex items-center gap-1">
-                        <Award className="w-3 h-3" /> {award}
-                      </Badge>
-                    ))}
-                  </div>
+        {content.content_type === "series" && episodes.length > 0 ? (
+          <div className="grid grid-cols-1 gap-8">
+            <div id="video-player" className="relative overflow-hidden rounded-lg bg-black aspect-video">
+              {embedHtml ? (
+                <div 
+                  style={{ paddingBottom: '56.25%' }} 
+                  dangerouslySetInnerHTML={{ __html: embedHtml }} 
+                  className="w-full h-full relative"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-gray-900">
+                  <Play className="w-20 h-20 text-white opacity-70" />
                 </div>
               )}
             </div>
             
-            {content.content_type === "series" && (
-              <div className="mt-8">
-                <Separator className="bg-gray-800 my-6" />
-                <div className="flex items-center gap-4 mb-4">
-                  <h2 className="text-xl font-bold">
-                    {content.season && `Season ${content.season}`}
-                    {content.episode && content.season && ` | `}
-                    {content.episode && `Episode ${content.episode}`}
-                  </h2>
-                  {activeEpisodeId ? (
-                    <span className="text-gray-400">
-                      {episodes.find(ep => ep.id === activeEpisodeId)?.episode_name || content.episode_title}
-                    </span>
-                  ) : (
-                    content.episode_title && <span className="text-gray-400">"{content.episode_title}"</span>
-                  )}
-                </div>
-                
-                {content.season_count && content.episode_count && (
-                  <p className="text-sm text-gray-400 mb-4">
-                    {content.season_count} {content.season_count === 1 ? "Season" : "Seasons"} | {content.episode_count} {content.episode_count === 1 ? "Episode" : "Episodes"} total
-                  </p>
-                )}
-
-                {content.content_type === "series" && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Play className="w-5 h-5 text-red-600" />
-                      Episodes
-                    </h3>
-                    
-                    {isLoadingEpisodes ? (
-                      <div className="space-y-2">
-                        {[...Array(5)].map((_, i) => (
-                          <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
-                        ))}
-                      </div>
-                    ) : episodes.length > 0 ? (
-                      <EpisodeList 
-                        episodes={episodes} 
-                        activeEpisodeId={activeEpisodeId} 
-                        onSelectEpisode={handleSelectEpisode} 
-                      />
-                    ) : (
-                      <div className="text-center py-6 bg-gray-800/30 rounded-md">
-                        <p className="text-gray-400">No episodes available</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+            <div className="mt-2">
+              <EpisodeList 
+                episodes={episodes} 
+                activeEpisodeId={activeEpisodeId} 
+                onSelectEpisode={handleSelectEpisode}
+                seriesTitle={content.title}
+                season={content.season}
+              />
+            </div>
+          </div>
+        ) : (
+          <div id="video-player" className="relative overflow-hidden rounded-lg bg-black aspect-video mb-8">
+            {embedHtml ? (
+              <div 
+                style={{ paddingBottom: '56.25%' }} 
+                dangerouslySetInnerHTML={{ __html: embedHtml }} 
+                className="w-full h-full relative"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-gray-900">
+                <Play className="w-20 h-20 text-white opacity-70" />
               </div>
             )}
           </div>
-          
-          <div>
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Film className="w-5 h-5 text-red-600" />
-                <span>Stream Details</span>
-              </h3>
+        )}
+
+        {(content.content_type !== "series" || episodes.length === 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
+              
+              {content.release_year && (
+                <div className="flex items-center gap-2 text-gray-400 mb-4">
+                  <Calendar className="w-4 h-4" />
+                  <span>{content.release_year}</span>
+                  
+                  {content.runtime && (
+                    <>
+                      <span className="mx-2">•</span>
+                      <Clock className="w-4 h-4" />
+                      <span>{content.runtime}</span>
+                    </>
+                  )}
+                  
+                  {content.resolution && (
+                    <>
+                      <span className="mx-2">•</span>
+                      <Badge variant="outline" className="border-gray-600">
+                        {content.resolution}
+                      </Badge>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {content.description && <p className="text-gray-300 mb-6">{content.description}</p>}
               
               <div className="space-y-4">
-                {content.maturity_rating && (
+                {content.genre && content.genre.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-1">RATING</h4>
-                    <Badge className="bg-gray-800">{content.maturity_rating}</Badge>
-                  </div>
-                )}
-                
-                {content.duration && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-1">DURATION</h4>
-                    <p className="text-sm flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      {content.duration}
-                    </p>
-                  </div>
-                )}
-                
-                {content.resolution && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-1">QUALITY</h4>
-                    <Badge variant="outline" className="border-gray-600">
-                      {content.resolution}
-                    </Badge>
-                  </div>
-                )}
-                
-                {content.mood && content.mood.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-1">MOOD</h4>
+                    <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
                     <div className="flex flex-wrap gap-2">
-                      {content.mood.map((mood, index) => (
-                        <Badge key={index} variant="secondary" className="bg-gray-800">
-                          {mood}
+                      {content.genre.map((genre, index) => (
+                        <Badge key={index} className="bg-gray-800 hover:bg-gray-700">
+                          {genre}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {content.actors && content.actors.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-400 mb-2">CAST</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {content.actors.map((actor, index) => (
+                        <Badge key={index} variant="outline" className="border-gray-600 flex items-center gap-1">
+                          <User className="w-3 h-3" /> {actor}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {content.awards && content.awards.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-400 mb-2">AWARDS</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {content.awards.map((award, index) => (
+                        <Badge key={index} variant="outline" className="border-yellow-600 text-yellow-400 flex items-center gap-1">
+                          <Award className="w-3 h-3" /> {award}
                         </Badge>
                       ))}
                     </div>
                   </div>
                 )}
               </div>
+              
+              {content.content_type === "series" && (
+                <div className="mt-8">
+                  <Separator className="bg-gray-800 my-6" />
+                  <div className="flex items-center gap-4 mb-4">
+                    <h2 className="text-xl font-bold">
+                      {content.season && `Season ${content.season}`}
+                      {content.episode && content.season && ` | `}
+                      {content.episode && `Episode ${content.episode}`}
+                    </h2>
+                    {activeEpisodeId ? (
+                      <span className="text-gray-400">
+                        {episodes.find(ep => ep.id === activeEpisodeId)?.episode_name || content.episode_title}
+                      </span>
+                    ) : (
+                      content.episode_title && <span className="text-gray-400">"{content.episode_title}"</span>
+                    )}
+                  </div>
+                  
+                  {content.season_count && content.episode_count && (
+                    <p className="text-sm text-gray-400 mb-4">
+                      {content.season_count} {content.season_count === 1 ? "Season" : "Seasons"} | {content.episode_count} {content.episode_count === 1 ? "Episode" : "Episodes"} total
+                    </p>
+                  )}
+
+                  {content.content_type === "series" && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Play className="w-5 h-5 text-red-600" />
+                        Episodes
+                      </h3>
+                      
+                      {isLoadingEpisodes ? (
+                        <div className="space-y-2">
+                          {[...Array(5)].map((_, i) => (
+                            <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
+                          ))}
+                        </div>
+                      ) : episodes.length > 0 ? (
+                        <EpisodeList 
+                          episodes={episodes} 
+                          activeEpisodeId={activeEpisodeId} 
+                          onSelectEpisode={handleSelectEpisode} 
+                        />
+                      ) : (
+                        <div className="text-center py-6 bg-gray-800/30 rounded-md">
+                          <p className="text-gray-400">No episodes available</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <div className="bg-gray-900 rounded-lg p-6">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Film className="w-5 h-5 text-red-600" />
+                  <span>Stream Details</span>
+                </h3>
+                
+                <div className="space-y-4">
+                  {content.maturity_rating && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-400 mb-1">RATING</h4>
+                      <Badge className="bg-gray-800">{content.maturity_rating}</Badge>
+                    </div>
+                  )}
+                  
+                  {content.duration && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-400 mb-1">DURATION</h4>
+                      <p className="text-sm flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        {content.duration}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {content.resolution && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-400 mb-1">QUALITY</h4>
+                      <Badge variant="outline" className="border-gray-600">
+                        {content.resolution}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  {content.mood && content.mood.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-400 mb-1">MOOD</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {content.mood.map((mood, index) => (
+                          <Badge key={index} variant="secondary" className="bg-gray-800">
+                            {mood}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
