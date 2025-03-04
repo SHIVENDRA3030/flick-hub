@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +14,6 @@ import { toast } from "sonner";
 import EpisodeList, { Episode } from "@/components/EpisodeList";
 import { useEpisodes } from "@/hooks/useEpisodes";
 
-// Theme colors
 const THEMES = {
   darkstark: {
     background: "#141414",
@@ -39,7 +37,8 @@ const NetflixDetails = () => {
     localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark"
   );
   
-  // Fetch content details
+  console.log("Netflix Details Page - Current route ID:", id);
+  
   const {
     data: content,
     isLoading,
@@ -71,41 +70,38 @@ const NetflixDetails = () => {
     }
   });
 
-  // Fetch episodes - make sure we're passing the right ID
   const { 
     data: episodes = [], 
-    isLoading: isLoadingEpisodes
+    isLoading: isLoadingEpisodes 
   } = useEpisodes(id);
   
-  // Debug logging for troubleshooting
   useEffect(() => {
-    console.log("Current ID from params:", id);
+    console.log("NetflixDetails component - Current ID:", id);
     if (content) {
-      console.log("Content loaded:", content.title);
-      console.log("Current content type:", content.content_type);
+      console.log("Content type:", content.content_type);
+      console.log("Content title:", content.title);
     }
-    console.log("Episodes loaded:", episodes?.length);
-    console.log("Episodes data in page:", episodes);
-  }, [content, episodes, id]);
+    console.log("Episodes count:", episodes?.length || 0);
+    if (episodes && episodes.length > 0) {
+      console.log("First episode:", episodes[0]);
+    }
+  }, [id, content, episodes]);
 
-  // Handle episode selection
   const handleSelectEpisode = (episode: Episode) => {
-    console.log("Episode selected:", episode.episode_name);
+    console.log("Episode selected:", episode);
     setActiveEpisodeId(episode.id);
     setCurrentEmbedCode(episode.embed_code);
-    // Scroll to video player
     document.getElementById("video-player")?.scrollIntoView({ behavior: "smooth" });
+    toast.success(`Now playing: Episode ${episode.episode_number}`);
   };
 
-  // Auto-select first episode when episodes are loaded
   useEffect(() => {
     if (episodes && episodes.length > 0 && !activeEpisodeId) {
-      console.log("Auto-selecting first episode:", episodes[0].episode_name);
+      console.log("Auto-selecting first episode:", episodes[0]);
       handleSelectEpisode(episodes[0]);
     }
   }, [episodes, activeEpisodeId]);
 
-  // Get the HTML to embed
   const getEmbedHtml = () => {
     if (currentEmbedCode) {
       return currentEmbedCode.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
@@ -121,7 +117,6 @@ const NetflixDetails = () => {
 
   const embedHtml = getEmbedHtml();
   
-  // Toggle theme
   const toggleTheme = () => {
     const newTheme = theme === "darkstark" ? "streamark" : "darkstark";
     setTheme(newTheme);
@@ -129,7 +124,6 @@ const NetflixDetails = () => {
     toast.success(`Theme switched to ${newTheme === "darkstark" ? "Darkstark" : "Streamark"}`);
   };
 
-  // Apply theme CSS variables
   useEffect(() => {
     const root = document.documentElement;
     const currentTheme = THEMES[theme];
@@ -139,7 +133,6 @@ const NetflixDetails = () => {
     root.style.setProperty('--theme-secondary', currentTheme.secondary);
     root.style.setProperty('--theme-accent', currentTheme.accent);
     
-    // Also update specific classes
     document.body.style.backgroundColor = currentTheme.background;
   }, [theme]);
 
@@ -165,6 +158,12 @@ const NetflixDetails = () => {
         </div>
       </div>;
   }
+
+  useEffect(() => {
+    if (content?.content_type === 'series' && (!episodes || episodes.length === 0)) {
+      console.log("This is a series but no episodes found. Check the database connection.");
+    }
+  }, [content, episodes]);
 
   return (
     <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white">

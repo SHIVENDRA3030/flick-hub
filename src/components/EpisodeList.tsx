@@ -30,13 +30,20 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
   // Find the active episode to display at the top
   const activeEpisode = episodes.find(ep => ep.id === activeEpisodeId);
 
-  console.log("EpisodeList rendering with episodes:", episodes.length);
+  console.log("EpisodeList rendering with episodes count:", episodes?.length || 0);
   console.log("Active episode ID:", activeEpisodeId);
-  console.log("Episodes data in component:", episodes);
+  
+  // More detailed logging to diagnose issues
+  if (episodes?.length > 0) {
+    console.log("First episode data:", episodes[0]);
+  } else {
+    console.log("No episodes available in the component");
+  }
 
   if (isLoading) {
     return (
       <div className="space-y-2">
+        <p className="text-sm text-gray-400">Loading episodes...</p>
         {[...Array(3)].map((_, i) => (
           <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
         ))}
