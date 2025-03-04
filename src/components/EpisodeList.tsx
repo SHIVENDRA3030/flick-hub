@@ -16,6 +16,7 @@ interface EpisodeListProps {
   onSelectEpisode: (episode: Episode) => void;
   seriesTitle?: string;
   season?: string | number;
+  isLoading?: boolean;
 }
 
 const EpisodeList: React.FC<EpisodeListProps> = ({ 
@@ -23,12 +24,23 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
   activeEpisodeId, 
   onSelectEpisode,
   seriesTitle,
-  season
+  season,
+  isLoading = false
 }) => {
   // Find the active episode to display at the top
   const activeEpisode = episodes.find(ep => ep.id === activeEpisodeId);
 
-  if (episodes.length === 0) {
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!episodes || episodes.length === 0) {
     return (
       <div className="p-6 bg-gray-800 rounded-md text-center">
         <Info className="w-12 h-12 text-gray-400 mx-auto mb-3" />

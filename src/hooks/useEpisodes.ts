@@ -27,11 +27,10 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
           throw error;
         }
         
-        console.log("Episodes fetched from DB:", data?.length || 0);
+        console.log("Episodes fetched successfully:", data);
         
         if (!data || data.length === 0) {
-          console.log("No episodes found in DB for ID:", netflixContentId);
-          // Instead of returning sample data, return empty array
+          console.log("No episodes found for content ID:", netflixContentId);
           return [];
         }
         
@@ -42,6 +41,8 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
         return [];
       }
     },
-    enabled: Boolean(netflixContentId), // Only run query if we have a content ID
+    enabled: Boolean(netflixContentId),
+    retry: 2, // Add some retries in case of network issues
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 };

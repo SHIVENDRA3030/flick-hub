@@ -35,7 +35,9 @@ const NetflixDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
-  const [theme, setTheme] = useState<"darkstark" | "streamark">("darkstark");
+  const [theme, setTheme] = useState<"darkstark" | "streamark">(
+    localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark"
+  );
   
   // Fetch content details
   const {
@@ -46,6 +48,8 @@ const NetflixDetails = () => {
     queryKey: ["netflix-content", id],
     queryFn: async () => {
       if (!id) throw new Error("Content ID is required");
+      
+      console.log("Fetching content details for ID:", id);
       const { data, error } = await supabase
         .from("netflix_content")
         .select("*")
@@ -53,18 +57,21 @@ const NetflixDetails = () => {
         .maybeSingle();
         
       if (error) {
+        console.error("Error fetching content details:", error);
         toast.error("Failed to load content: " + error.message);
         throw error;
       }
       if (!data) {
+        console.error("No content found for ID:", id);
         throw new Error("Content not found");
       }
-      console.log("Content loaded:", data.title, "Type:", data.content_type);
+      
+      console.log("Content loaded successfully:", data.title, "Type:", data.content_type);
       return data as NetflixContent;
     }
   });
 
-  // Fetch episodes (will return empty array if none found)
+  // Fetch episodes
   const { 
     data: episodes = [], 
     isLoading: isLoadingEpisodes 
@@ -88,7 +95,7 @@ const NetflixDetails = () => {
 
   // Auto-select first episode when episodes are loaded
   useEffect(() => {
-    if (episodes.length > 0 && !activeEpisodeId) {
+    if (episodes && episodes.length > 0 && !activeEpisodeId) {
       console.log("Auto-selecting first episode");
       handleSelectEpisode(episodes[0]);
     }
@@ -112,8 +119,10 @@ const NetflixDetails = () => {
   
   // Toggle theme
   const toggleTheme = () => {
-    setTheme(current => current === "darkstark" ? "streamark" : "darkstark");
-    toast.success(`Theme switched to ${theme === "darkstark" ? "Streamark" : "Darkstark"}`);
+    const newTheme = theme === "darkstark" ? "streamark" : "darkstark";
+    setTheme(newTheme);
+    localStorage.setItem("preferred-theme", newTheme);
+    toast.success(`Theme switched to ${newTheme === "darkstark" ? "Darkstark" : "Streamark"}`);
   };
 
   // Apply theme CSS variables
@@ -196,21 +205,23 @@ const NetflixDetails = () => {
             <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
             {content.description && <p className="text-gray-300 mb-4">{content.description}</p>}
             
-            {isLoadingEpisodes ? (
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
-                ))}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold">Episodes</h3>
+                <Badge className={`bg-[var(--theme-primary,#9b87f5)] text-white`}>
+                  {content.content_type || "Unknown Type"}
+                </Badge>
               </div>
-            ) : (
+              
               <EpisodeList 
                 episodes={episodes} 
                 activeEpisodeId={activeEpisodeId} 
                 onSelectEpisode={handleSelectEpisode}
                 seriesTitle={content.title}
                 season={content.season}
+                isLoading={isLoadingEpisodes}
               />
-            )}
+            </div>
             
             <div className="mt-6 space-y-4">
               {content.genre && content.genre.length > 0 && (
