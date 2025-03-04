@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -70,20 +71,22 @@ const NetflixDetails = () => {
     }
   });
 
-  // Fetch episodes - ensure we're using the correct ID
+  // Fetch episodes - make sure we're passing the right ID
   const { 
     data: episodes = [], 
-    isLoading: isLoadingEpisodes 
+    isLoading: isLoadingEpisodes
   } = useEpisodes(id);
   
-  // Debug logging
+  // Debug logging for troubleshooting
   useEffect(() => {
+    console.log("Current ID from params:", id);
     if (content) {
+      console.log("Content loaded:", content.title);
       console.log("Current content type:", content.content_type);
     }
     console.log("Episodes loaded:", episodes?.length);
-    console.log("Episodes data:", episodes);
-  }, [content, episodes]);
+    console.log("Episodes data in page:", episodes);
+  }, [content, episodes, id]);
 
   // Handle episode selection
   const handleSelectEpisode = (episode: Episode) => {
@@ -97,7 +100,7 @@ const NetflixDetails = () => {
   // Auto-select first episode when episodes are loaded
   useEffect(() => {
     if (episodes && episodes.length > 0 && !activeEpisodeId) {
-      console.log("Auto-selecting first episode");
+      console.log("Auto-selecting first episode:", episodes[0].episode_name);
       handleSelectEpisode(episodes[0]);
     }
   }, [episodes, activeEpisodeId]);

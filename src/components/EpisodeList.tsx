@@ -32,6 +32,7 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
 
   console.log("EpisodeList rendering with episodes:", episodes.length);
   console.log("Active episode ID:", activeEpisodeId);
+  console.log("Episodes data in component:", episodes);
 
   if (isLoading) {
     return (

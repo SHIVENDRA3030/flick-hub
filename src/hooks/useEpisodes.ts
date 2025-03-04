@@ -28,13 +28,18 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
         }
         
         console.log("Episodes data received:", data);
+        console.log("Raw data length:", data?.length || 0);
         
         if (!data || data.length === 0) {
           console.log("No episodes found for content ID:", netflixContentId);
+          // Make an extra check to see if we got data in the right format
+          const checkResult = await supabase.from("web_series_episodes").select("count").eq("netflix_content_id", netflixContentId);
+          console.log("Count check result:", checkResult);
           return [];
         }
         
-        // Transform the data into Episode objects
+        // Transform the data into Episode objects - print what we're getting
+        console.log("Data structure sample:", JSON.stringify(data[0]));
         const episodes = data.map(episode => ({
           id: episode.id,
           episode_number: episode.episode_number,
@@ -51,7 +56,7 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
       }
     },
     enabled: Boolean(netflixContentId),
-    retry: 2,
-    staleTime: 5 * 60 * 1000,
+    retry: 3,
+    staleTime: 1 * 60 * 1000, // Lower staleTime to 1 minute to ensure fresher data
   });
 };
