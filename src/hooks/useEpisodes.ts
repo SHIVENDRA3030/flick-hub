@@ -27,14 +27,23 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
           throw error;
         }
         
-        console.log("Episodes fetched successfully:", data);
+        console.log("Episodes data received:", data);
         
         if (!data || data.length === 0) {
           console.log("No episodes found for content ID:", netflixContentId);
           return [];
         }
         
-        return data as Episode[];
+        // Transform the data into Episode objects
+        const episodes = data.map(episode => ({
+          id: episode.id,
+          episode_number: episode.episode_number,
+          episode_name: episode.episode_name,
+          embed_code: episode.embed_code
+        }));
+        
+        console.log("Transformed episodes:", episodes);
+        return episodes as Episode[];
       } catch (error) {
         console.error("Unexpected error in useEpisodes:", error);
         toast.error("Error loading episodes");
@@ -42,7 +51,7 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
       }
     },
     enabled: Boolean(netflixContentId),
-    retry: 2, // Add some retries in case of network issues
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
   });
 };

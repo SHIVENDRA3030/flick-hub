@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -71,7 +70,7 @@ const NetflixDetails = () => {
     }
   });
 
-  // Fetch episodes
+  // Fetch episodes - ensure we're using the correct ID
   const { 
     data: episodes = [], 
     isLoading: isLoadingEpisodes 
@@ -79,7 +78,9 @@ const NetflixDetails = () => {
   
   // Debug logging
   useEffect(() => {
-    console.log("Current content type:", content?.content_type);
+    if (content) {
+      console.log("Current content type:", content.content_type);
+    }
     console.log("Episodes loaded:", episodes?.length);
     console.log("Episodes data:", episodes);
   }, [content, episodes]);

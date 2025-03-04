@@ -30,6 +30,9 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
   // Find the active episode to display at the top
   const activeEpisode = episodes.find(ep => ep.id === activeEpisodeId);
 
+  console.log("EpisodeList rendering with episodes:", episodes.length);
+  console.log("Active episode ID:", activeEpisodeId);
+
   if (isLoading) {
     return (
       <div className="space-y-2">
