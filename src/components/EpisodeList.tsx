@@ -33,7 +33,9 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
       <div className="p-6 bg-gray-800 rounded-md text-center">
         <Info className="w-12 h-12 text-gray-400 mx-auto mb-3" />
         <p className="text-lg">No episodes available</p>
-        <p className="text-sm text-gray-400 mt-2">Episodes will appear here when available</p>
+        <p className="text-sm text-gray-400 mt-2">
+          This might be a movie or episodes haven't been added yet
+        </p>
       </div>
     );
   }

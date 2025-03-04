@@ -2,22 +2,40 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, Film, Award, Star, Calendar, User, Play } from "lucide-react";
+import { ArrowLeft, Clock, Film, Award, Star, Calendar, User, Play, Info, Sun, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { NetflixContent } from "@/types/netflix";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
 import { toast } from "sonner";
 import EpisodeList, { Episode } from "@/components/EpisodeList";
 import { useEpisodes } from "@/hooks/useEpisodes";
 
+// Theme colors
+const THEMES = {
+  darkstark: {
+    background: "#141414",
+    primary: "#9b87f5",
+    secondary: "#7E69AB",
+    accent: "#6E59A5",
+  },
+  streamark: {
+    background: "#1A1F2C",
+    primary: "#0EA5E9",
+    secondary: "#33C3F0",
+    accent: "#1EAEDB",
+  }
+};
+
 const NetflixDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
+  const [theme, setTheme] = useState<"darkstark" | "streamark">("darkstark");
   
   // Fetch content details
   const {
@@ -46,7 +64,7 @@ const NetflixDetails = () => {
     }
   });
 
-  // Fetch episodes (will use sample data if none found)
+  // Fetch episodes (will return empty array if none found)
   const { 
     data: episodes = [], 
     isLoading: isLoadingEpisodes 
@@ -91,23 +109,43 @@ const NetflixDetails = () => {
   };
 
   const embedHtml = getEmbedHtml();
+  
+  // Toggle theme
+  const toggleTheme = () => {
+    setTheme(current => current === "darkstark" ? "streamark" : "darkstark");
+    toast.success(`Theme switched to ${theme === "darkstark" ? "Streamark" : "Darkstark"}`);
+  };
+
+  // Apply theme CSS variables
+  useEffect(() => {
+    const root = document.documentElement;
+    const currentTheme = THEMES[theme];
+    
+    root.style.setProperty('--theme-background', currentTheme.background);
+    root.style.setProperty('--theme-primary', currentTheme.primary);
+    root.style.setProperty('--theme-secondary', currentTheme.secondary);
+    root.style.setProperty('--theme-accent', currentTheme.accent);
+    
+    // Also update specific classes
+    document.body.style.backgroundColor = currentTheme.background;
+  }, [theme]);
 
   if (isLoading) {
-    return <div className="min-h-screen bg-[#141414] text-white flex items-center justify-center">
-        <div className="animate-spin w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full"></div>
+    return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white flex items-center justify-center">
+        <div className="animate-spin w-12 h-12 border-4 border-[var(--theme-primary,#9b87f5)] border-t-transparent rounded-full"></div>
       </div>;
   }
 
   if (error || !content) {
-    return <div className="min-h-screen bg-[#141414] text-white p-6">
+    return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white p-6">
         <div className="max-w-4xl mx-auto text-center py-12">
-          <Film className="w-16 h-16 text-red-600 mx-auto mb-4" />
+          <Film className="w-16 h-16 text-[var(--theme-primary,#9b87f5)] mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-4">Content Not Found</h1>
           <p className="text-gray-400 mb-6">
             The content you're looking for could not be found or is no longer available.
           </p>
           <Link to="/netflix">
-            <Button className="bg-red-600 hover:bg-red-700">
+            <Button className="bg-[var(--theme-primary,#9b87f5)] hover:bg-[var(--theme-secondary,#7E69AB)]">
               <ArrowLeft className="mr-2" /> Back to Browse
             </Button>
           </Link>
@@ -115,81 +153,81 @@ const NetflixDetails = () => {
       </div>;
   }
 
-  // Check if we have episodes to display
-  const hasEpisodes = episodes.length > 0;
-
   return (
-    <div className="min-h-screen bg-[#141414] text-white">
-      <ThreeBackground color="#111111" particleCount={1000} />
+    <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white">
+      <ThreeBackground color={theme === "darkstark" ? "#111111" : "#151C2C"} particleCount={1000} />
       <NavMenu />
 
       <div className="max-w-7xl mx-auto p-6 relative z-10">
-        <div className="mb-6">
+        <div className="flex justify-between items-center mb-6">
           <Link to="/netflix">
             <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
               <ArrowLeft className="mr-2" /> Back to Browse
             </Button>
           </Link>
+          
+          <div className="flex items-center space-x-2">
+            <Moon className={`w-4 h-4 ${theme === "darkstark" ? "text-[var(--theme-primary,#9b87f5)]" : "text-gray-400"}`} />
+            <Switch 
+              checked={theme === "streamark"}
+              onCheckedChange={toggleTheme}
+              className={theme === "streamark" ? "bg-[var(--theme-primary,#0EA5E9)]" : ""}
+            />
+            <Sun className={`w-4 h-4 ${theme === "streamark" ? "text-[var(--theme-primary,#0EA5E9)]" : "text-gray-400"}`} />
+          </div>
         </div>
 
-        {hasEpisodes ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video">
-              {embedHtml ? (
-                <div 
-                  style={{ paddingBottom: '56.25%' }} 
-                  dangerouslySetInnerHTML={{ __html: embedHtml }} 
-                  className="w-full h-full relative"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full bg-gray-900">
-                  <Play className="w-20 h-20 text-white opacity-70" />
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-2">
-              <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
-              {content.description && <p className="text-gray-300 mb-4">{content.description}</p>}
-              
-              {isLoadingEpisodes ? (
-                <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
-                  ))}
-                </div>
-              ) : (
-                <EpisodeList 
-                  episodes={episodes} 
-                  activeEpisodeId={activeEpisodeId} 
-                  onSelectEpisode={handleSelectEpisode}
-                  seriesTitle={content.title}
-                  season={content.season}
-                />
-              )}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video">
+            {embedHtml ? (
+              <div 
+                style={{ paddingBottom: '56.25%' }} 
+                dangerouslySetInnerHTML={{ __html: embedHtml }} 
+                className="w-full h-full relative"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-gray-900">
+                <Play className="w-20 h-20 text-white opacity-70" />
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video mb-8">
-              {embedHtml ? (
-                <div 
-                  style={{ paddingBottom: '56.25%' }} 
-                  dangerouslySetInnerHTML={{ __html: embedHtml }} 
-                  className="w-full h-full relative"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full bg-gray-900">
-                  <Play className="w-20 h-20 text-white opacity-70" />
+          
+          <div className="mt-2">
+            <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
+            {content.description && <p className="text-gray-300 mb-4">{content.description}</p>}
+            
+            {isLoadingEpisodes ? (
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-16 bg-gray-800 animate-pulse rounded-md"></div>
+                ))}
+              </div>
+            ) : (
+              <EpisodeList 
+                episodes={episodes} 
+                activeEpisodeId={activeEpisodeId} 
+                onSelectEpisode={handleSelectEpisode}
+                seriesTitle={content.title}
+                season={content.season}
+              />
+            )}
+            
+            <div className="mt-6 space-y-4">
+              {content.genre && content.genre.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {content.genre.map((genre, index) => (
+                      <Badge key={index} className={`bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
+                        {genre}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
-            
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
               
               {content.release_year && (
-                <div className="flex items-center gap-2 text-gray-400 mb-4">
+                <div className="flex items-center gap-2 text-gray-400">
                   <Calendar className="w-4 h-4" />
                   <span>{content.release_year}</span>
                   
@@ -200,63 +238,11 @@ const NetflixDetails = () => {
                       <span>{content.runtime}</span>
                     </>
                   )}
-                  
-                  {content.resolution && (
-                    <>
-                      <span className="mx-2">•</span>
-                      <Badge variant="outline" className="border-gray-600">
-                        {content.resolution}
-                      </Badge>
-                    </>
-                  )}
                 </div>
               )}
-              
-              {content.description && <p className="text-gray-300 mb-6">{content.description}</p>}
-              
-              <div className="space-y-4">
-                {content.genre && content.genre.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {content.genre.map((genre, index) => (
-                        <Badge key={index} className="bg-gray-800 hover:bg-gray-700">
-                          {genre}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {content.actors && content.actors.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-400 mb-2">CAST</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {content.actors.map((actor, index) => (
-                        <Badge key={index} variant="outline" className="border-gray-600 flex items-center gap-1">
-                          <User className="w-3 h-3" /> {actor}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {content.awards && content.awards.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-400 mb-2">AWARDS</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {content.awards.map((award, index) => (
-                        <Badge key={index} variant="outline" className="border-yellow-600 text-yellow-400 flex items-center gap-1">
-                          <Award className="w-3 h-3" /> {award}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
