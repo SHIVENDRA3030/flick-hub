@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -37,7 +38,7 @@ const NetflixDetails = () => {
     localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark"
   );
   
-  console.log("Netflix Details Page - Current route ID:", id);
+  console.log("NetflixDetails Page - Current route ID:", id);
   
   const {
     data: content,

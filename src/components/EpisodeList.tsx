@@ -30,15 +30,12 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
   // Find the active episode to display at the top
   const activeEpisode = episodes.find(ep => ep.id === activeEpisodeId);
 
-  console.log("EpisodeList rendering with episodes count:", episodes?.length || 0);
-  console.log("Active episode ID:", activeEpisodeId);
-  
-  // More detailed logging to diagnose issues
-  if (episodes?.length > 0) {
-    console.log("First episode data:", episodes[0]);
-  } else {
-    console.log("No episodes available in the component");
-  }
+  console.log("EpisodeList rendering with:", {
+    episodeCount: episodes?.length || 0,
+    activeEpisodeId,
+    firstEpisode: episodes?.[0],
+    isLoading
+  });
 
   if (isLoading) {
     return (

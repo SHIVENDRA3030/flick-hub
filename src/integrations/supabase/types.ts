@@ -191,47 +191,6 @@ export type Database = {
         }
         Relationships: []
       }
-      streaming_links: {
-        Row: {
-          created_at: string | null
-          id: string
-          label: string | null
-          movie_id: string | null
-          provider: string | null
-          quality: string | null
-          status: string | null
-          url: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          label?: string | null
-          movie_id?: string | null
-          provider?: string | null
-          quality?: string | null
-          status?: string | null
-          url: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          label?: string | null
-          movie_id?: string | null
-          provider?: string | null
-          quality?: string | null
-          status?: string | null
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "streaming_links_movie_id_fkey"
-            columns: ["movie_id"]
-            isOneToOne: false
-            referencedRelation: "movies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       web_series_episodes: {
         Row: {
           created_at: string | null
