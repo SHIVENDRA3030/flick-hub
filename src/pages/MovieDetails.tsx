@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Movie, DownloadLink, StreamingLink } from "@/types/movie";
+import { Movie, DownloadLink } from "@/types/movie";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -41,20 +41,11 @@ const MovieDetails = () => {
     },
   });
 
-  const { data: streamingLinks = [], isLoading: isLoadingStreaming } = useQuery({
-    queryKey: ["streaming_links", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("streaming_links")
-        .select("*")
-        .eq("movie_id", id);
+  // Since streaming_links table doesn't exist, we'll use an empty array
+  const streamingLinks = [];
+  const isLoadingStreaming = false;
 
-      if (error) throw error;
-      return data as StreamingLink[];
-    },
-  });
-
-  const isLoading = isLoadingMovie || isLoadingDownloads || isLoadingStreaming;
+  const isLoading = isLoadingMovie || isLoadingDownloads;
 
   if (isLoading) {
     return (
@@ -156,37 +147,12 @@ const MovieDetails = () => {
               </div>
             )}
 
-            {/* Streaming Links */}
+            {/* Since streaming_links table doesn't exist, this section won't render */}
             {streamingLinks.length > 0 && (
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Streaming Links</h2>
                 <div className="space-y-4">
-                  {streamingLinks.map((link) => (
-                    <div
-                      key={link.id}
-                      className="flex flex-wrap items-center gap-4 p-4 border rounded-lg bg-black/20 backdrop-blur-sm
-                        hover:bg-black/30 transition-all duration-300 hover:scale-[1.02]"
-                    >
-                      {link.provider && (
-                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
-                          {link.provider}
-                        </Badge>
-                      )}
-                      {link.quality && (
-                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
-                          {link.quality}
-                        </Badge>
-                      )}
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-auto"
-                      >
-                        <Button className="hover:scale-105 transition-transform">Watch Now</Button>
-                      </a>
-                    </div>
-                  ))}
+                  {/* Streaming links would be mapped here if they existed */}
                 </div>
               </div>
             )}

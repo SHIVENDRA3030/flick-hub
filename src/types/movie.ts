@@ -1,4 +1,3 @@
-
 export interface Movie {
   id: string;
   title: string;
@@ -28,6 +27,7 @@ export interface DownloadLink {
   size?: string | null;
 }
 
+// Keep this interface for future use, but it's not currently used in the database
 export interface StreamingLink {
   id: string;
   movie_id: string | null;
