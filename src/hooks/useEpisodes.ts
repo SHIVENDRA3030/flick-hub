@@ -16,12 +16,12 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
       console.log(`Fetching episodes for content ID: ${netflixContentId}`);
       
       try {
-        // Fetch the episodes for this content
+        // Fetch the episodes for this content and order by episode number
         const { data, error } = await supabase
           .from("web_series_episodes")
           .select("*")
           .eq("netflix_content_id", netflixContentId)
-          .order("episode_number", { ascending: true });
+          .order('episode_number', { ascending: true });
         
         if (error) {
           console.error("Error fetching episodes:", error);
@@ -36,13 +36,15 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
           return [];
         }
         
-        // Transform the data into the format expected by the EpisodeList component
-        const episodes = data.map(episode => ({
-          id: episode.id,
-          episode_number: episode.episode_number,
-          episode_name: episode.episode_name,
-          embed_code: episode.embed_code
-        }));
+        // Transform and ensure episodes are sorted by episode number
+        const episodes = data
+          .sort((a, b) => a.episode_number - b.episode_number)
+          .map(episode => ({
+            id: episode.id,
+            episode_number: episode.episode_number,
+            episode_name: episode.episode_name,
+            embed_code: episode.embed_code
+          }));
         
         console.log("Transformed episodes:", episodes);
         return episodes as Episode[];

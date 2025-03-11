@@ -30,6 +30,9 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
   // Find the active episode to display at the top
   const activeEpisode = episodes.find(ep => ep.id === activeEpisodeId);
 
+  // Ensure episodes are sorted by episode number
+  const sortedEpisodes = [...episodes].sort((a, b) => a.episode_number - b.episode_number);
+
   console.log("EpisodeList rendering with:", {
     episodeCount: episodes?.length || 0,
     activeEpisodeId,
@@ -77,7 +80,7 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
       )}
       
       <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-        {episodes.map((episode) => (
+        {sortedEpisodes.map((episode) => (
           <div 
             key={episode.id}
             onClick={() => onSelectEpisode(episode)}
@@ -96,7 +99,9 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
               )}
             </div>
             <div className="flex-grow p-4">
-              <p className="text-base truncate">{episode.episode_name}</p>
+              <p className="text-base truncate">
+                Episode {episode.episode_number}: {episode.episode_name}
+              </p>
             </div>
           </div>
         ))}
