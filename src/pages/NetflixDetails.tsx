@@ -202,17 +202,24 @@ const NetflixDetails = () => {
                 <Play className="w-20 h-20 text-white opacity-70" />
               </div>
             )}
+            {content?.resolution && (
+              <div className="absolute top-2 right-2">
+                <Badge className="bg-blue-900 text-blue-100">
+                  {content.resolution}
+                </Badge>
+              </div>
+            )}
           </div>
           
           <div className="mt-2">
-            <h1 className="text-3xl font-bold mb-2">{content.title}</h1>
-            {content.description && <p className="text-gray-300 mb-4">{content.description}</p>}
+            <h1 className="text-3xl font-bold mb-2">{content?.title}</h1>
+            {content?.description && <p className="text-gray-300 mb-4">{content.description}</p>}
             
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-semibold">Episodes</h3>
                 <Badge className={`bg-[var(--theme-primary,#9b87f5)] text-white`}>
-                  {content.content_type || "Unknown Type"}
+                  {content?.content_type || "Unknown Type"}
                 </Badge>
               </div>
               
@@ -220,14 +227,14 @@ const NetflixDetails = () => {
                 episodes={episodes} 
                 activeEpisodeId={activeEpisodeId} 
                 onSelectEpisode={handleSelectEpisode}
-                seriesTitle={content.title}
-                season={content.season}
+                seriesTitle={content?.title}
+                season={content?.season}
                 isLoading={isLoadingEpisodes}
               />
             </div>
             
             <div className="mt-6 space-y-4">
-              {content.genre && content.genre.length > 0 && (
+              {content?.genre && content.genre.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
                   <div className="flex flex-wrap gap-2">
@@ -240,7 +247,7 @@ const NetflixDetails = () => {
                 </div>
               )}
               
-              {content.release_year && (
+              {content?.release_year && (
                 <div className="flex items-center gap-2 text-gray-400">
                   <Calendar className="w-4 h-4" />
                   <span>{content.release_year}</span>
@@ -250,6 +257,15 @@ const NetflixDetails = () => {
                       <span className="mx-2">•</span>
                       <Clock className="w-4 h-4" />
                       <span>{content.runtime}</span>
+                    </>
+                  )}
+                  
+                  {content.resolution && (
+                    <>
+                      <span className="mx-2">•</span>
+                      <Badge className="bg-blue-900 text-blue-100">
+                        {content.resolution}
+                      </Badge>
                     </>
                   )}
                 </div>

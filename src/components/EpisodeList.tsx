@@ -8,6 +8,7 @@ export interface Episode {
   episode_number: number;
   episode_name: string;
   embed_code: string;
+  quality?: string; // Add optional quality field
 }
 
 interface EpisodeListProps {
@@ -70,6 +71,11 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
           <h2 className="text-xl font-bold">
             Episode {activeEpisode.episode_number}: <span className="font-normal">{activeEpisode.episode_name}</span>
           </h2>
+          {activeEpisode.quality && (
+            <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-900 text-blue-100 rounded-md">
+              {activeEpisode.quality}
+            </span>
+          )}
           {seriesTitle && (
             <div className="text-sm mt-1">
               <h3 className="text-gray-300">{seriesTitle}</h3>
@@ -99,9 +105,16 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
               )}
             </div>
             <div className="flex-grow p-4">
-              <p className="text-base truncate">
-                Episode {episode.episode_number}: {episode.episode_name}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-base truncate">
+                  Episode {episode.episode_number}: {episode.episode_name}
+                </p>
+                {episode.quality && (
+                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-900 text-blue-100 rounded-md">
+                    {episode.quality}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}
