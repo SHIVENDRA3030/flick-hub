@@ -2,12 +2,11 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, Film, Award, Star, Calendar, User, Play, Info, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Clock, Film, Star, Calendar, Play, Info, Sun, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { NetflixContent } from "@/types/netflix";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
@@ -32,11 +31,11 @@ const THEMES = {
 
 const NetflixDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
-  const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
   const [theme, setTheme] = useState<"darkstark" | "streamark">(
     localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark"
   );
+  const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
+  const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
   
   console.log("NetflixDetails Page - Current route ID:", id);
   
@@ -88,6 +87,31 @@ const NetflixDetails = () => {
     }
   }, [id, content, episodes]);
 
+  useEffect(() => {
+    if (episodes && episodes.length > 0 && !activeEpisodeId) {
+      console.log("Auto-selecting first episode:", episodes[0]);
+      handleSelectEpisode(episodes[0]);
+    }
+  }, [episodes, activeEpisodeId]);
+
+  useEffect(() => {
+    if (content?.content_type === 'series' && (!episodes || episodes.length === 0)) {
+      console.log("This is a series but no episodes found. Check the database connection.");
+    }
+  }, [content, episodes]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const currentTheme = THEMES[theme];
+    
+    root.style.setProperty('--theme-background', currentTheme.background);
+    root.style.setProperty('--theme-primary', currentTheme.primary);
+    root.style.setProperty('--theme-secondary', currentTheme.secondary);
+    root.style.setProperty('--theme-accent', currentTheme.accent);
+    
+    document.body.style.backgroundColor = currentTheme.background;
+  }, [theme]);
+
   const handleSelectEpisode = (episode: Episode) => {
     console.log("Episode selected:", episode);
     setActiveEpisodeId(episode.id);
@@ -95,13 +119,6 @@ const NetflixDetails = () => {
     document.getElementById("video-player")?.scrollIntoView({ behavior: "smooth" });
     toast.success(`Now playing: Episode ${episode.episode_number}`);
   };
-
-  useEffect(() => {
-    if (episodes && episodes.length > 0 && !activeEpisodeId) {
-      console.log("Auto-selecting first episode:", episodes[0]);
-      handleSelectEpisode(episodes[0]);
-    }
-  }, [episodes, activeEpisodeId]);
 
   const getEmbedHtml = () => {
     if (currentEmbedCode) {
@@ -116,26 +133,12 @@ const NetflixDetails = () => {
     return null;
   };
 
-  const embedHtml = getEmbedHtml();
-  
   const toggleTheme = () => {
     const newTheme = theme === "darkstark" ? "streamark" : "darkstark";
     setTheme(newTheme);
     localStorage.setItem("preferred-theme", newTheme);
     toast.success(`Theme switched to ${newTheme === "darkstark" ? "Darkstark" : "Streamark"}`);
   };
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const currentTheme = THEMES[theme];
-    
-    root.style.setProperty('--theme-background', currentTheme.background);
-    root.style.setProperty('--theme-primary', currentTheme.primary);
-    root.style.setProperty('--theme-secondary', currentTheme.secondary);
-    root.style.setProperty('--theme-accent', currentTheme.accent);
-    
-    document.body.style.backgroundColor = currentTheme.background;
-  }, [theme]);
 
   if (isLoading) {
     return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white flex items-center justify-center">
@@ -160,11 +163,7 @@ const NetflixDetails = () => {
       </div>;
   }
 
-  useEffect(() => {
-    if (content?.content_type === 'series' && (!episodes || episodes.length === 0)) {
-      console.log("This is a series but no episodes found. Check the database connection.");
-    }
-  }, [content, episodes]);
+  const embedHtml = getEmbedHtml();
 
   return (
     <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white">

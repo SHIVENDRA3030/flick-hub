@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,7 +87,7 @@ const MovieDetails = () => {
         </Button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-3 relative overflow-hidden rounded-lg bg-black aspect-video">
+          <div id="video-player" className="md:col-span-3 relative overflow-hidden rounded-lg bg-black aspect-video">
             {getEmbedHtml() ? (
               <div 
                 dangerouslySetInnerHTML={{ __html: getEmbedHtml() as string }} 
@@ -171,4 +172,3 @@ const MovieDetails = () => {
 };
 
 export default MovieDetails;
-
