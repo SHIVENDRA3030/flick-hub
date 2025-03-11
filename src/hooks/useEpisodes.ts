@@ -39,13 +39,17 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
         // Transform and ensure episodes are sorted by episode number
         const episodes = data
           .sort((a, b) => a.episode_number - b.episode_number)
-          .map(episode => ({
-            id: episode.id,
-            episode_number: episode.episode_number,
-            episode_name: episode.episode_name,
-            embed_code: episode.embed_code,
-            quality: determineQuality(episode.resolution || episode.quality || null)
-          }));
+          .map(episode => {
+            // Use optional chaining to safely access properties that might not exist
+            const qualityInfo = episode.resolution || episode.quality || null;
+            return {
+              id: episode.id,
+              episode_number: episode.episode_number,
+              episode_name: episode.episode_name,
+              embed_code: episode.embed_code,
+              quality: determineQuality(qualityInfo)
+            };
+          });
         
         console.log("Transformed episodes:", episodes);
         return episodes as Episode[];

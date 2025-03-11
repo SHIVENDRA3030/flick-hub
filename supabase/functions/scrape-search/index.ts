@@ -23,9 +23,14 @@ serve(async (req) => {
       )
     }
 
-    // Fetch search results
+    // Add a referrer policy to the fetch request
     const searchUrl = `https://new3.scloud.ninja/?search=${encodeURIComponent(query)}`
-    const response = await fetch(searchUrl)
+    const response = await fetch(searchUrl, {
+      headers: {
+        'Referrer-Policy': 'no-referrer',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    })
     const html = await response.text()
     
     const parser = new DOMParser()
