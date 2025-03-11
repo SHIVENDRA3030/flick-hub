@@ -8,6 +8,7 @@ export interface Movie {
   description: string | null;
   created_at: string | null;
   updated_at: string | null;
+  embed_code?: string | null;
 }
 
 export interface DownloadLink {

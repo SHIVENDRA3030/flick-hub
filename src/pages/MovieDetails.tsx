@@ -1,10 +1,9 @@
-
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Movie, DownloadLink } from "@/types/movie";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -41,11 +40,19 @@ const MovieDetails = () => {
     },
   });
 
-  // Since streaming_links table doesn't exist, we'll use an empty array
   const streamingLinks = [];
   const isLoadingStreaming = false;
 
   const isLoading = isLoadingMovie || isLoadingDownloads;
+
+  const getEmbedHtml = () => {
+    if (!movie) return null;
+    
+    if (movie.embed_code) {
+      return movie.embed_code.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
+    }
+    return null;
+  };
 
   if (isLoading) {
     return (
@@ -79,7 +86,19 @@ const MovieDetails = () => {
         </Button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Movie Poster */}
+          <div className="md:col-span-3 relative overflow-hidden rounded-lg bg-black aspect-video">
+            {getEmbedHtml() ? (
+              <div 
+                dangerouslySetInnerHTML={{ __html: getEmbedHtml() as string }} 
+                className="w-full h-full relative"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-gray-900">
+                <Play className="w-20 h-20 text-white opacity-70" />
+              </div>
+            )}
+          </div>
+
           <div className="aspect-[2/3] relative">
             <img
               src={movie.poster_url || "/placeholder.svg"}
@@ -88,7 +107,6 @@ const MovieDetails = () => {
             />
           </div>
 
-          {/* Movie Details */}
           <div className="md:col-span-2 backdrop-blur-lg bg-black/20 p-6 rounded-lg">
             <h1 className="text-4xl font-bold mb-4">
               {movie.title} ({format(new Date(movie.release_date), "yyyy")})
@@ -107,7 +125,6 @@ const MovieDetails = () => {
               <p className="text-muted-foreground mb-8">{movie.description}</p>
             )}
 
-            {/* Download Links */}
             {downloadLinks.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold mb-4">Download Links</h2>
@@ -146,16 +163,6 @@ const MovieDetails = () => {
                 </div>
               </div>
             )}
-
-            {/* Since streaming_links table doesn't exist, this section won't render */}
-            {streamingLinks.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">Streaming Links</h2>
-                <div className="space-y-4">
-                  {/* Streaming links would be mapped here if they existed */}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -164,3 +171,4 @@ const MovieDetails = () => {
 };
 
 export default MovieDetails;
+
