@@ -4,6 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Episode } from "@/components/EpisodeList";
 import { toast } from "sonner";
 
+// Define a more complete type for the episode data from the database
+interface EpisodeData {
+  id: string;
+  created_at: string;
+  embed_code: string;
+  episode_name: string | null;
+  episode_number: string | null;
+  netflix_content_id: string;
+  resolution?: string; // Optional property
+  quality?: string;    // Optional property
+}
+
 export const useEpisodes = (netflixContentId: string | undefined) => {
   return useQuery({
     queryKey: ["episodes", netflixContentId],
@@ -44,19 +56,19 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
             const numB = typeof b.episode_number === 'string' ? parseInt(b.episode_number, 10) : b.episode_number;
             return numA - numB;
           })
-          .map(episode => {
+          .map((episode: EpisodeData) => {
             // Convert episode_number to number and handle potential string values
             const episodeNumber = typeof episode.episode_number === 'string' 
               ? parseInt(episode.episode_number, 10) 
               : episode.episode_number;
               
-            // Use optional chaining to safely access properties that might not exist
-            const qualityInfo = episode?.resolution || episode?.quality || null;
+            // Safely access potentially undefined properties
+            const qualityInfo = (episode as any).resolution || (episode as any).quality || null;
             
             return {
               id: episode.id,
-              episode_number: episodeNumber,
-              episode_name: episode.episode_name,
+              episode_number: episodeNumber || 0, // Default to 0 if null
+              episode_name: episode.episode_name || `Episode ${episodeNumber || 0}`, // Default name if null
               embed_code: episode.embed_code,
               quality: determineQuality(qualityInfo)
             };
