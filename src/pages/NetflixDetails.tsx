@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -164,27 +165,34 @@ const NetflixDetails = () => {
   const embedHtml = getEmbedHtml();
 
   return (
-    <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white">
-      <ThreeBackground color={theme === "darkstark" ? "#111111" : "#151C2C"} particleCount={1000} />
+    <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white overflow-x-hidden">
+      <ThreeBackground color={theme === "darkstark" ? "#111111" : "#151C2C"} particleCount={isMobile ? 500 : 1000} />
       <NavMenu />
 
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
-        <div className="flex justify-between items-center mb-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 relative z-10">
+        {/* Header section with back button and theme switch */}
+        <div className="flex justify-between items-center mb-4 sm:mb-6 py-3">
           <Link to="/netflix">
-            <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
-              <ArrowLeft className="mr-2" /> Back to Browse
+            <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800 px-2 sm:px-4">
+              <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" /> 
+              <span className="text-sm sm:text-base">Back</span>
             </Button>
           </Link>
           
-          <div className="flex items-center space-x-2">
-            <Moon className={`w-4 h-4 ${theme === "darkstark" ? "text-[var(--theme-primary,#9b87f5)]" : "text-gray-400"}`} />
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <Moon className={`w-3 h-3 sm:w-4 sm:h-4 ${theme === "darkstark" ? "text-[var(--theme-primary,#9b87f5)]" : "text-gray-400"}`} />
             <Switch checked={theme === "streamark"} onCheckedChange={toggleTheme} className={theme === "streamark" ? "bg-[var(--theme-primary,#0EA5E9)]" : ""} />
-            <Sun className={`w-4 h-4 ${theme === "streamark" ? "text-[var(--theme-primary,#0EA5E9)]" : "text-gray-400"}`} />
+            <Sun className={`w-3 h-3 sm:w-4 sm:h-4 ${theme === "streamark" ? "text-[var(--theme-primary,#0EA5E9)]" : "text-gray-400"}`} />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
-          <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video w-full">
+        {/* Main content container */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 lg:gap-6">
+          {/* Video player - Full width on mobile, 2/3 on desktop */}
+          <div 
+            id="video-player" 
+            className="lg:col-span-2 relative overflow-hidden w-full rounded-lg bg-black aspect-video mb-4 lg:mb-0"
+          >
             {embedHtml ? (
               <div 
                 className="w-full h-0 relative"
@@ -192,27 +200,34 @@ const NetflixDetails = () => {
                 dangerouslySetInnerHTML={{ __html: embedHtml }}
               />
             ) : (
-              <div className="flex items-center justify-center h-full bg-gray-900">
-                <Play className="w-20 h-20 text-white opacity-70" />
+              <div className="flex items-center justify-center h-full bg-gray-900 aspect-video">
+                <Play className="w-16 h-16 sm:w-20 sm:h-20 text-white opacity-70" />
               </div>
             )}
             {content?.resolution && (
               <div className="absolute top-2 right-2">
-                <Badge className="bg-blue-900 text-blue-100">
+                <Badge className="bg-blue-900 text-blue-100 text-xs">
                   {content.resolution}
                 </Badge>
               </div>
             )}
           </div>
           
-          <div className="mt-2">
-            <h1 className="text-3xl font-bold mb-2">{content?.title}</h1>
-            {content?.description && <p className="text-gray-300 mb-4">{content.description}</p>}
+          {/* Content details - Full width on mobile, 1/3 on desktop */}
+          <div className="w-full lg:col-span-1 px-1 sm:px-0">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{content?.title}</h1>
             
-            <div className="mb-6">
+            {content?.description && (
+              <p className="text-sm sm:text-base text-gray-300 mb-4 line-clamp-3 sm:line-clamp-none">
+                {content.description}
+              </p>
+            )}
+            
+            {/* Episodes section */}
+            <div className="mb-4 sm:mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold">Episodes</h3>
-                <Badge className={`bg-[var(--theme-primary,#9b87f5)] text-white`}>
+                <h3 className="text-base sm:text-lg font-semibold">Episodes</h3>
+                <Badge className={`bg-[var(--theme-primary,#9b87f5)] text-white text-xs`}>
                   {content?.content_type || "Unknown Type"}
                 </Badge>
               </div>
@@ -227,13 +242,14 @@ const NetflixDetails = () => {
               />
             </div>
             
-            <div className="mt-6 space-y-4">
+            {/* Metadata section */}
+            <div className="mt-4 space-y-3 sm:space-y-4">
               {content?.genre && content.genre.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <h3 className="text-xs sm:text-sm font-semibold text-gray-400 mb-1 sm:mb-2">GENRES</h3>
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
                     {content.genre.map((genre, index) => (
-                      <Badge key={index} className={`bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
+                      <Badge key={index} className={`text-xs bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
                         {genre}
                       </Badge>
                     ))}
@@ -242,22 +258,22 @@ const NetflixDetails = () => {
               )}
               
               {content?.release_year && (
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Calendar className="w-4 h-4" />
+                <div className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm text-gray-400">
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>{content.release_year}</span>
                   
                   {content.runtime && (
                     <>
-                      <span className="mx-2">•</span>
-                      <Clock className="w-4 h-4" />
+                      <span className="mx-1 sm:mx-2">•</span>
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>{content.runtime}</span>
                     </>
                   )}
                   
                   {content.resolution && (
                     <>
-                      <span className="mx-2">•</span>
-                      <Badge className="bg-blue-900 text-blue-100">
+                      <span className="mx-1 sm:mx-2">•</span>
+                      <Badge className="bg-blue-900 text-blue-100 text-xs">
                         {content.resolution}
                       </Badge>
                     </>
