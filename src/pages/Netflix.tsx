@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -18,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
+import PageToggle from "@/components/PageToggle";
 import {
   Pagination,
   PaginationContent,
@@ -27,12 +27,14 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ITEMS_PER_PAGE = 8;
 
 const Netflix = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const isMobile = useIsMobile();
 
   // Query for Netflix content
   const { data: netflixContent = [], isLoading } = useQuery({
@@ -75,7 +77,12 @@ const Netflix = () => {
       <ThreeBackground color="#111111" particleCount={1000} />
       <NavMenu />
       
-      <div className="max-w-7xl mx-auto p-6 relative z-10">
+      {/* Page Toggle - Fixed Position */}
+      <div className="fixed top-4 left-4 z-50">
+        <PageToggle />
+      </div>
+      
+      <div className="max-w-7xl mx-auto p-6 pt-16 relative z-10">
         <header className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <Film className="w-8 h-8 text-red-600" />
@@ -227,3 +234,4 @@ const Netflix = () => {
 };
 
 export default Netflix;
+

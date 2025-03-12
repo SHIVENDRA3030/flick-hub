@@ -51,7 +51,7 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
               : episode.episode_number;
               
             // Use optional chaining to safely access properties that might not exist
-            const qualityInfo = episode.resolution || episode.quality || null;
+            const qualityInfo = episode?.resolution || episode?.quality || null;
             
             return {
               id: episode.id,

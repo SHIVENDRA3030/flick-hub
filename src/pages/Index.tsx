@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ThreeBackground from "@/components/ThreeBackground";
 import NavMenu from "@/components/Menu";
+import PageToggle from "@/components/PageToggle";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -79,7 +80,13 @@ const Index = () => {
     <div className="min-h-screen bg-background/50 p-6">
       <ThreeBackground color="#ffffff" particleCount={1500} />
       <NavMenu />
-      <div className="max-w-7xl mx-auto relative z-10">
+      
+      {/* Page Toggle - Fixed Position */}
+      <div className="fixed top-4 left-4 z-50">
+        <PageToggle />
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative z-10 pt-10">
         <h1 className="text-4xl font-bold mb-8 text-gradient animate-slide-in">
           Darkstark
         </h1>
