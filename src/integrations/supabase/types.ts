@@ -195,24 +195,24 @@ export type Database = {
         Row: {
           created_at: string | null
           embed_code: string
-          episode_name: string
-          episode_number: number
+          episode_name: string | null
+          episode_number: string | null
           id: string
           netflix_content_id: string
         }
         Insert: {
           created_at?: string | null
           embed_code: string
-          episode_name: string
-          episode_number: number
+          episode_name?: string | null
+          episode_number?: string | null
           id?: string
           netflix_content_id: string
         }
         Update: {
           created_at?: string | null
           embed_code?: string
-          episode_name?: string
-          episode_number?: number
+          episode_name?: string | null
+          episode_number?: string | null
           id?: string
           netflix_content_id?: string
         }

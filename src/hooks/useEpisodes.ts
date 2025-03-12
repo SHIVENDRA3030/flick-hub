@@ -41,7 +41,7 @@ export const useEpisodes = (netflixContentId: string | undefined) => {
           .sort((a, b) => a.episode_number - b.episode_number)
           .map(episode => {
             // Use optional chaining to safely access properties that might not exist
-            const qualityInfo = episode.resolution || episode.quality || null;
+            const qualityInfo = episode?.resolution || episode?.quality || null;
             return {
               id: episode.id,
               episode_number: episode.episode_number,

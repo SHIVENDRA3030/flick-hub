@@ -12,6 +12,8 @@ import NavMenu from "@/components/Menu";
 import { toast } from "sonner";
 import EpisodeList, { Episode } from "@/components/EpisodeList";
 import { useEpisodes } from "@/hooks/useEpisodes";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 const THEMES = {
   darkstark: {
     background: "#141414",
@@ -26,46 +28,48 @@ const THEMES = {
     accent: "#1EAEDB"
   }
 };
+
 const NetflixDetails = () => {
-  const {
-    id
-  } = useParams<{
-    id: string;
-  }>();
-  const [theme, setTheme] = useState<"darkstark" | "streamark">(localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark");
+  const { id } = useParams<{ id: string; }>();
+  const [theme, setTheme] = useState<"darkstark" | "streamark">(
+    localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark"
+  );
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+  
   console.log("NetflixDetails Page - Current route ID:", id);
-  const {
-    data: content,
-    isLoading,
-    error
-  } = useQuery({
+
+  const { data: content, isLoading, error } = useQuery({
     queryKey: ["netflix-content", id],
     queryFn: async () => {
       if (!id) throw new Error("Content ID is required");
       console.log("Fetching content details for ID:", id);
-      const {
-        data,
-        error
-      } = await supabase.from("netflix_content").select("*").eq("id", id).maybeSingle();
+      
+      const { data, error } = await supabase
+        .from("netflix_content")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      
       if (error) {
         console.error("Error fetching content details:", error);
         toast.error("Failed to load content: " + error.message);
         throw error;
       }
+      
       if (!data) {
         console.error("No content found for ID:", id);
         throw new Error("Content not found");
       }
+      
       console.log("Content loaded successfully:", data.title, "Type:", data.content_type);
       return data as NetflixContent;
     }
   });
-  const {
-    data: episodes = [],
-    isLoading: isLoadingEpisodes
-  } = useEpisodes(id);
+
+  const { data: episodes = [], isLoading: isLoadingEpisodes } = useEpisodes(id);
+
   useEffect(() => {
     console.log("NetflixDetails component - Current ID:", id);
     if (content) {
@@ -77,17 +81,20 @@ const NetflixDetails = () => {
       console.log("First episode:", episodes[0]);
     }
   }, [id, content, episodes]);
+
   useEffect(() => {
     if (episodes && episodes.length > 0 && !activeEpisodeId) {
       console.log("Auto-selecting first episode:", episodes[0]);
       handleSelectEpisode(episodes[0]);
     }
   }, [episodes, activeEpisodeId]);
+
   useEffect(() => {
     if (content?.content_type === 'series' && (!episodes || episodes.length === 0)) {
       console.log("This is a series but no episodes found. Check the database connection.");
     }
   }, [content, episodes]);
+
   useEffect(() => {
     const root = document.documentElement;
     const currentTheme = THEMES[theme];
@@ -97,6 +104,7 @@ const NetflixDetails = () => {
     root.style.setProperty('--theme-accent', currentTheme.accent);
     document.body.style.backgroundColor = currentTheme.background;
   }, [theme]);
+
   const handleSelectEpisode = (episode: Episode) => {
     console.log("Episode selected:", episode);
     setActiveEpisodeId(episode.id);
@@ -106,6 +114,7 @@ const NetflixDetails = () => {
     });
     toast.success(`Now playing: Episode ${episode.episode_number}`);
   };
+
   const getEmbedHtml = () => {
     if (currentEmbedCode) {
       return currentEmbedCode.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"');
@@ -117,19 +126,25 @@ const NetflixDetails = () => {
     }
     return null;
   };
+
   const toggleTheme = () => {
     const newTheme = theme === "darkstark" ? "streamark" : "darkstark";
     setTheme(newTheme);
     localStorage.setItem("preferred-theme", newTheme);
     toast.success(`Theme switched to ${newTheme === "darkstark" ? "Darkstark" : "Streamark"}`);
   };
+
   if (isLoading) {
-    return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white flex items-center justify-center">
+    return (
+      <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-[var(--theme-primary,#9b87f5)] border-t-transparent rounded-full"></div>
-      </div>;
+      </div>
+    );
   }
+
   if (error || !content) {
-    return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white p-6">
+    return (
+      <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white p-6">
         <div className="max-w-4xl mx-auto text-center py-12">
           <Film className="w-16 h-16 text-[var(--theme-primary,#9b87f5)] mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-4">Content Not Found</h1>
@@ -142,14 +157,18 @@ const NetflixDetails = () => {
             </Button>
           </Link>
         </div>
-      </div>;
+      </div>
+    );
   }
+
   const embedHtml = getEmbedHtml();
-  return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white">
+
+  return (
+    <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white">
       <ThreeBackground color={theme === "darkstark" ? "#111111" : "#151C2C"} particleCount={1000} />
       <NavMenu />
 
-      <div className="max-w-7xl mx-auto p-6 relative z-10">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 relative z-10">
         <div className="flex justify-between items-center mb-6">
           <Link to="/netflix">
             <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
@@ -164,20 +183,26 @@ const NetflixDetails = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video">
-            {embedHtml ? <div style={{
-            paddingBottom: '56.25%'
-          }} dangerouslySetInnerHTML={{
-            __html: embedHtml
-          }} className="w-full h-full relative mx-[100px] my-[50px] px-0 py-0 bg-inherit rounded-full" /> : <div className="flex items-center justify-center h-full bg-gray-900">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+          <div id="video-player" className="lg:col-span-2 relative overflow-hidden rounded-lg bg-black aspect-video w-full">
+            {embedHtml ? (
+              <div 
+                className="w-full h-0 relative"
+                style={{ paddingBottom: '56.25%' }} 
+                dangerouslySetInnerHTML={{ __html: embedHtml }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-gray-900">
                 <Play className="w-20 h-20 text-white opacity-70" />
-              </div>}
-            {content?.resolution && <div className="absolute top-2 right-2">
+              </div>
+            )}
+            {content?.resolution && (
+              <div className="absolute top-2 right-2">
                 <Badge className="bg-blue-900 text-blue-100">
                   {content.resolution}
                 </Badge>
-              </div>}
+              </div>
+            )}
           </div>
           
           <div className="mt-2">
@@ -192,40 +217,59 @@ const NetflixDetails = () => {
                 </Badge>
               </div>
               
-              <EpisodeList episodes={episodes} activeEpisodeId={activeEpisodeId} onSelectEpisode={handleSelectEpisode} seriesTitle={content?.title} season={content?.season} isLoading={isLoadingEpisodes} />
+              <EpisodeList 
+                episodes={episodes} 
+                activeEpisodeId={activeEpisodeId} 
+                onSelectEpisode={handleSelectEpisode} 
+                seriesTitle={content?.title} 
+                season={content?.season} 
+                isLoading={isLoadingEpisodes} 
+              />
             </div>
             
             <div className="mt-6 space-y-4">
-              {content?.genre && content.genre.length > 0 && <div>
+              {content?.genre && content.genre.length > 0 && (
+                <div>
                   <h3 className="text-sm font-semibold text-gray-400 mb-2">GENRES</h3>
                   <div className="flex flex-wrap gap-2">
-                    {content.genre.map((genre, index) => <Badge key={index} className={`bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
+                    {content.genre.map((genre, index) => (
+                      <Badge key={index} className={`bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
                         {genre}
-                      </Badge>)}
+                      </Badge>
+                    ))}
                   </div>
-                </div>}
+                </div>
+              )}
               
-              {content?.release_year && <div className="flex items-center gap-2 text-gray-400">
+              {content?.release_year && (
+                <div className="flex items-center gap-2 text-gray-400">
                   <Calendar className="w-4 h-4" />
                   <span>{content.release_year}</span>
                   
-                  {content.runtime && <>
+                  {content.runtime && (
+                    <>
                       <span className="mx-2">•</span>
                       <Clock className="w-4 h-4" />
                       <span>{content.runtime}</span>
-                    </>}
+                    </>
+                  )}
                   
-                  {content.resolution && <>
+                  {content.resolution && (
+                    <>
                       <span className="mx-2">•</span>
                       <Badge className="bg-blue-900 text-blue-100">
                         {content.resolution}
                       </Badge>
-                    </>}
-                </div>}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default NetflixDetails;
