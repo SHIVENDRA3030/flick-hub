@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +13,6 @@ import { toast } from "sonner";
 import EpisodeList, { Episode } from "@/components/EpisodeList";
 import { useEpisodes } from "@/hooks/useEpisodes";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 const THEMES = {
   darkstark: {
     background: "#141414",
@@ -29,48 +27,47 @@ const THEMES = {
     accent: "#1EAEDB"
   }
 };
-
 const NetflixDetails = () => {
-  const { id } = useParams<{ id: string; }>();
-  const [theme, setTheme] = useState<"darkstark" | "streamark">(
-    localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark"
-  );
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
+  const [theme, setTheme] = useState<"darkstark" | "streamark">(localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark");
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
   const isMobile = useIsMobile();
-  
   console.log("NetflixDetails Page - Current route ID:", id);
-  
-  const { data: content, isLoading, error } = useQuery({
+  const {
+    data: content,
+    isLoading,
+    error
+  } = useQuery({
     queryKey: ["netflix-content", id],
     queryFn: async () => {
       if (!id) throw new Error("Content ID is required");
       console.log("Fetching content details for ID:", id);
-      
-      const { data, error } = await supabase
-        .from("netflix_content")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-        
+      const {
+        data,
+        error
+      } = await supabase.from("netflix_content").select("*").eq("id", id).maybeSingle();
       if (error) {
         console.error("Error fetching content details:", error);
         toast.error("Failed to load content: " + error.message);
         throw error;
       }
-      
       if (!data) {
         console.error("No content found for ID:", id);
         throw new Error("Content not found");
       }
-      
       console.log("Content loaded successfully:", data.title, "Type:", data.content_type);
       return data as NetflixContent;
     }
   });
-  
-  const { data: episodes = [], isLoading: isLoadingEpisodes } = useEpisodes(id);
-  
+  const {
+    data: episodes = [],
+    isLoading: isLoadingEpisodes
+  } = useEpisodes(id);
   useEffect(() => {
     console.log("NetflixDetails component - Current ID:", id);
     if (content) {
@@ -82,84 +79,58 @@ const NetflixDetails = () => {
       console.log("First episode:", episodes[0]);
     }
   }, [id, content, episodes]);
-  
   useEffect(() => {
     if (episodes && episodes.length > 0 && !activeEpisodeId) {
       console.log("Auto-selecting first episode:", episodes[0]);
       handleSelectEpisode(episodes[0]);
     }
   }, [episodes, activeEpisodeId]);
-  
   useEffect(() => {
     if (content?.content_type === 'series' && (!episodes || episodes.length === 0)) {
       console.log("This is a series but no episodes found. Check the database connection.");
     }
   }, [content, episodes]);
-  
   useEffect(() => {
     const root = document.documentElement;
     const currentTheme = THEMES[theme];
-    
     root.style.setProperty('--theme-background', currentTheme.background);
     root.style.setProperty('--theme-primary', currentTheme.primary);
     root.style.setProperty('--theme-secondary', currentTheme.secondary);
     root.style.setProperty('--theme-accent', currentTheme.accent);
-    
     document.body.style.backgroundColor = currentTheme.background;
   }, [theme]);
-  
   const handleSelectEpisode = (episode: Episode) => {
     console.log("Episode selected:", episode);
     setActiveEpisodeId(episode.id);
     setCurrentEmbedCode(episode.embed_code);
-    
     document.getElementById("video-player")?.scrollIntoView({
       behavior: "smooth"
     });
-    
     toast.success(`Now playing: Episode ${episode.episode_number}`);
   };
-  
   const getEmbedHtml = () => {
     // Fix the iframe styling to properly fill the container
     if (currentEmbedCode) {
-      return currentEmbedCode.replace(
-        '<iframe', 
-        '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"'
-      ).replace(
-        '<IFRAME', 
-        '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"'
-      ).replace('</IFRAME>', '</iframe>');
+      return currentEmbedCode.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('<IFRAME', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('</IFRAME>', '</iframe>');
     }
-    
     if (content?.embed_code) {
-      return content.embed_code.replace(
-        '<iframe', 
-        '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"'
-      ).replace(
-        '<IFRAME', 
-        '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"'
-      ).replace('</IFRAME>', '</iframe>');
+      return content.embed_code.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('<IFRAME', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('</IFRAME>', '</iframe>');
     } else if (content?.embed_url) {
       return `<iframe src="${content.embed_url}" style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" allowfullscreen></iframe>`;
     }
-    
     return null;
   };
-  
   const toggleTheme = () => {
     const newTheme = theme === "darkstark" ? "streamark" : "darkstark";
     setTheme(newTheme);
     localStorage.setItem("preferred-theme", newTheme);
     toast.success(`Theme switched to ${newTheme === "darkstark" ? "Darkstark" : "Streamark"}`);
   };
-  
   if (isLoading) {
     return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-[var(--theme-primary,#9b87f5)] border-t-transparent rounded-full"></div>
       </div>;
   }
-  
   if (error || !content) {
     return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white p-6">
         <div className="max-w-4xl mx-auto text-center py-12">
@@ -176,9 +147,7 @@ const NetflixDetails = () => {
         </div>
       </div>;
   }
-  
   const embedHtml = getEmbedHtml();
-  
   return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white overflow-x-hidden">
       <ThreeBackground color={theme === "darkstark" ? "#111111" : "#151C2C"} particleCount={isMobile ? 500 : 1000} />
       <NavMenu />
@@ -203,34 +172,28 @@ const NetflixDetails = () => {
         {/* Main content container */}
         <div className="flex flex-col lg:grid lg:grid-cols-3 lg:gap-6">
           {/* Video player - Full width on mobile, 2/3 on desktop */}
-          <div id="video-player" className="lg:col-span-2 relative overflow-hidden w-full bg-black rounded-lg mb-4 lg:mb-0">
-            {embedHtml ? 
-              <div className="w-full aspect-video relative">
-                <div dangerouslySetInnerHTML={{ __html: embedHtml }} className="absolute inset-0" />
-              </div>
-              : 
-              <div className="flex items-center justify-center h-full bg-gray-900 aspect-video">
+          <div id="video-player" className="lg:col-span-2 relative overflow-hidden w-full rounded-lg mb-4 lg:mb-0 bg-transparent">
+            {embedHtml ? <div className="w-full aspect-video relative">
+                <div dangerouslySetInnerHTML={{
+              __html: embedHtml
+            }} className="absolute inset-0" />
+              </div> : <div className="flex items-center justify-center h-full bg-gray-900 aspect-video">
                 <Play className="w-16 h-16 sm:w-20 sm:h-20 text-white opacity-70" />
-              </div>
-            }
-            {content?.resolution && 
-              <div className="absolute top-2 right-2">
+              </div>}
+            {content?.resolution && <div className="absolute top-2 right-2">
                 <Badge className="bg-blue-900 text-blue-100 text-xs">
                   {content.resolution}
                 </Badge>
-              </div>
-            }
+              </div>}
           </div>
           
           {/* Content details - Full width on mobile, 1/3 on desktop */}
           <div className="w-full lg:col-span-1 px-1 sm:px-0">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">{content?.title}</h1>
             
-            {content?.description && 
-              <p className="text-sm sm:text-base text-gray-300 mb-4 line-clamp-3 sm:line-clamp-none">
+            {content?.description && <p className="text-sm sm:text-base text-gray-300 mb-4 line-clamp-3 sm:line-clamp-none">
                 {content.description}
-              </p>
-            }
+              </p>}
             
             {/* Episodes section */}
             <div className="mb-4 sm:mb-6">
@@ -241,59 +204,41 @@ const NetflixDetails = () => {
                 </Badge>
               </div>
               
-              <EpisodeList 
-                episodes={episodes} 
-                activeEpisodeId={activeEpisodeId} 
-                onSelectEpisode={handleSelectEpisode} 
-                seriesTitle={content?.title} 
-                season={content?.season} 
-                isLoading={isLoadingEpisodes} 
-              />
+              <EpisodeList episodes={episodes} activeEpisodeId={activeEpisodeId} onSelectEpisode={handleSelectEpisode} seriesTitle={content?.title} season={content?.season} isLoading={isLoadingEpisodes} />
             </div>
             
             {/* Metadata section */}
             <div className="mt-4 space-y-3 sm:space-y-4">
-              {content?.genre && content.genre.length > 0 && 
-                <div>
+              {content?.genre && content.genre.length > 0 && <div>
                   <h3 className="text-xs sm:text-sm font-semibold text-gray-400 mb-1 sm:mb-2">GENRES</h3>
                   <div className="flex flex-wrap gap-1 sm:gap-2">
-                    {content.genre.map((genre, index) => 
-                      <Badge key={index} className={`text-xs bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
+                    {content.genre.map((genre, index) => <Badge key={index} className={`text-xs bg-gray-800 hover:bg-gray-700 ${theme === "streamark" ? "border-[var(--theme-primary,#0EA5E9)]" : ""}`}>
                         {genre}
-                      </Badge>
-                    )}
+                      </Badge>)}
                   </div>
-                </div>
-              }
+                </div>}
               
-              {content?.release_year && 
-                <div className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm text-gray-400">
+              {content?.release_year && <div className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm text-gray-400">
                   <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>{content.release_year}</span>
                   
-                  {content.runtime && 
-                    <>
+                  {content.runtime && <>
                       <span className="mx-1 sm:mx-2">•</span>
                       <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>{content.runtime}</span>
-                    </>
-                  }
+                    </>}
                   
-                  {content.resolution && 
-                    <>
+                  {content.resolution && <>
                       <span className="mx-1 sm:mx-2">•</span>
                       <Badge className="bg-blue-900 text-blue-100 text-xs">
                         {content.resolution}
                       </Badge>
-                    </>
-                  }
-                </div>
-              }
+                    </>}
+                </div>}
             </div>
           </div>
         </div>
       </div>
     </div>;
 };
-
 export default NetflixDetails;
