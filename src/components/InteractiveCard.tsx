@@ -29,6 +29,18 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
     }
   };
 
+  // Floating animation variants
+  const floatingVariants = {
+    animate: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ 
@@ -38,6 +50,9 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
       }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      variants={floatingVariants}
+      whileInView="animate"
+      viewport={{ once: false }}
       transition={{ duration: 0.3 }}
       className="relative"
     >

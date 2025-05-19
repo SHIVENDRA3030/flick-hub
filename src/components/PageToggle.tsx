@@ -31,6 +31,18 @@ const PageToggle = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
+  // Floating animation variants
+  const floatingVariants = {
+    animate: {
+      y: [0, -5, 0],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }
+    }
+  };
+
   return (
     <motion.div 
       initial={{
@@ -41,7 +53,10 @@ const PageToggle = ({
         opacity: isVisible ? 1 : 0.5,
         y: isVisible ? 0 : -10,
         scale: isVisible ? 1 : 0.95
-      }} 
+      }}
+      variants={floatingVariants}
+      whileInView="animate"
+      viewport={{ once: false }}
       transition={{
         duration: 0.3
       }}
