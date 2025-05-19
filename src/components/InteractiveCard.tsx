@@ -10,25 +10,6 @@ interface InteractiveCardProps {
 }
 
 const InteractiveCard = ({ content }: InteractiveCardProps) => {
-  // Wave animation variants
-  const waveVariants = {
-    hover: {
-      scale: [1, 1.02, 1, 1.02, 1],
-      filter: [
-        "brightness(1)",
-        "brightness(1.1)",
-        "brightness(1)",
-        "brightness(1.1)",
-        "brightness(1)",
-      ],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }
-    }
-  };
-
   // Floating animation variants
   const floatingVariants = {
     animate: {
@@ -70,10 +51,7 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
                 ease: "linear"
               }}
             />
-            <motion.img
-              variants={waveVariants}
-              whileHover="hover"
-              transition={{ duration: 0.4 }}
+            <img
               src={content.poster_url || "/placeholder.svg"}
               alt={content.title}
               className="w-full h-full object-cover"
