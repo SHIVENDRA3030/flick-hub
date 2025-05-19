@@ -10,6 +10,25 @@ interface InteractiveCardProps {
 }
 
 const InteractiveCard = ({ content }: InteractiveCardProps) => {
+  // Wave animation variants
+  const waveVariants = {
+    hover: {
+      scale: [1, 1.02, 1, 1.02, 1],
+      filter: [
+        "brightness(1)",
+        "brightness(1.1)",
+        "brightness(1)",
+        "brightness(1.1)",
+        "brightness(1)",
+      ],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ 
@@ -20,12 +39,25 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      className="relative"
     >
       <Link to={`/netflix/${content.id}`}>
         <Card className="bg-gray-800 border-gray-700 overflow-hidden h-full hover:shadow-lg hover:shadow-red-500/20 transition-shadow duration-300">
           <div className="aspect-[2/3] relative overflow-hidden">
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"
+              animate={{
+                x: ["0%", "100%", "0%"],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            />
             <motion.img
-              whileHover={{ scale: 1.1 }}
+              variants={waveVariants}
+              whileHover="hover"
               transition={{ duration: 0.4 }}
               src={content.poster_url || "/placeholder.svg"}
               alt={content.title}
@@ -41,7 +73,23 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
               initial={{ opacity: 0 }}
               whileHover={{ opacity: 1 }}
             >
-              <span className="text-white text-xs">View details</span>
+              <div className="w-full">
+                <span className="text-white text-xs flex items-center justify-between">
+                  <span>View details</span>
+                  <motion.span
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    →
+                  </motion.span>
+                </span>
+                <motion.div
+                  className="w-full h-0.5 bg-gradient-to-r from-red-500 to-purple-600 mt-2"
+                  initial={{ scaleX: 0, originX: 0 }}
+                  whileHover={{ scaleX: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
             </motion.div>
           </div>
           <CardContent className="p-4">
