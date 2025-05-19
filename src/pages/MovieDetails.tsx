@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Movie, DownloadLink } from "@/types/movie";
+import { Movie } from "@/types/movie";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -28,23 +28,7 @@ const MovieDetails = () => {
     },
   });
 
-  const { data: downloadLinks = [], isLoading: isLoadingDownloads } = useQuery({
-    queryKey: ["download_links", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("download_links")
-        .select("*")
-        .eq("movie_id", id);
-
-      if (error) throw error;
-      return data as DownloadLink[];
-    },
-  });
-
-  const streamingLinks = [];
-  const isLoadingStreaming = false;
-
-  const isLoading = isLoadingMovie || isLoadingDownloads;
+  const isLoading = isLoadingMovie;
 
   const getEmbedHtml = () => {
     if (!movie) return null;
@@ -80,7 +64,7 @@ const MovieDetails = () => {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/netflix")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Movies
@@ -124,45 +108,6 @@ const MovieDetails = () => {
 
             {movie.description && (
               <p className="text-muted-foreground mb-8">{movie.description}</p>
-            )}
-
-            {downloadLinks.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Download Links</h2>
-                <div className="space-y-4">
-                  {downloadLinks.map((link) => (
-                    <div
-                      key={link.id}
-                      className="flex flex-wrap items-center gap-4 p-4 border rounded-lg bg-black/20 backdrop-blur-sm
-                        hover:bg-black/30 transition-all duration-300 hover:scale-[1.02]"
-                    >
-                      {link.label && (
-                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
-                          {link.label}
-                        </Badge>
-                      )}
-                      {link.quality && (
-                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
-                          {link.quality}
-                        </Badge>
-                      )}
-                      {link.size && (
-                        <Badge variant="outline" className="hover:bg-white/10 transition-colors">
-                          {link.size}
-                        </Badge>
-                      )}
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-auto"
-                      >
-                        <Button className="hover:scale-105 transition-transform">Download</Button>
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </div>
             )}
           </div>
         </div>

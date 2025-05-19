@@ -9,10 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ThreeBackground from "@/components/ThreeBackground";
@@ -234,4 +230,3 @@ const Netflix = () => {
 };
 
 export default Netflix;
-
