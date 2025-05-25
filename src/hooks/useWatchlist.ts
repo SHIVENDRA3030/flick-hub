@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,12 +21,19 @@ export const useWatchlist = () => {
     queryFn: async () => {
       if (!user) return [];
       
+      console.log('Fetching watchlist for user:', user.id);
+      
       const { data, error } = await supabase
         .from('watchlist')
         .select('*')
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching watchlist:', error);
+        throw error;
+      }
+      
+      console.log('Watchlist data:', data);
       return data as WatchlistItem[];
     },
     enabled: !!user,
@@ -38,18 +44,24 @@ export const useWatchlist = () => {
     mutationFn: async (contentId: string) => {
       if (!user) throw new Error('User not authenticated');
       
+      console.log('Adding to watchlist:', { user_id: user.id, netflix_content_id: contentId });
+      
       const { error } = await supabase
         .from('watchlist')
         .insert({ user_id: user.id, netflix_content_id: contentId });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding to watchlist:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
       toast.success('Added to watchlist!');
     },
     onError: (error: any) => {
-      if (error.message.includes('duplicate key')) {
+      console.error('Add to watchlist error:', error);
+      if (error.message?.includes('duplicate key') || error.code === '23505') {
         toast.error('This item is already in your watchlist!');
       } else {
         toast.error('Failed to add to watchlist');
@@ -62,24 +74,31 @@ export const useWatchlist = () => {
     mutationFn: async (contentId: string) => {
       if (!user) throw new Error('User not authenticated');
       
+      console.log('Removing from watchlist:', { user_id: user.id, netflix_content_id: contentId });
+      
       const { error } = await supabase
         .from('watchlist')
         .delete()
         .eq('user_id', user.id)
         .eq('netflix_content_id', contentId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error removing from watchlist:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
       toast.success('Removed from watchlist!');
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Remove from watchlist error:', error);
       toast.error('Failed to remove from watchlist');
     },
   });
 
   const addToWatchlist = (contentId: string) => {
+    console.log('addToWatchlist called with:', contentId, 'user:', user?.id);
     if (!user) {
       toast.error('Please sign in to add items to your watchlist');
       return;
@@ -88,11 +107,18 @@ export const useWatchlist = () => {
   };
 
   const removeFromWatchlist = (contentId: string) => {
+    console.log('removeFromWatchlist called with:', contentId, 'user:', user?.id);
+    if (!user) {
+      toast.error('Please sign in to manage your watchlist');
+      return;
+    }
     removeFromWatchlistMutation.mutate(contentId);
   };
 
   const isInWatchlist = (contentId: string) => {
-    return watchlist.some(item => item.netflix_content_id === contentId);
+    const inWatchlist = watchlist.some(item => item.netflix_content_id === contentId);
+    console.log('isInWatchlist check:', contentId, 'result:', inWatchlist);
+    return inWatchlist;
   };
 
   return {

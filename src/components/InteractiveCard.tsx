@@ -30,14 +30,29 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
   };
 
   const inWatchlist = isInWatchlist(content.id);
+  const isLoading = isAddingToWatchlist || isRemovingFromWatchlist;
 
   const handleWatchlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
+    console.log('Heart icon clicked for content:', content.id, 'current state:', inWatchlist);
+    
+    if (!user) {
+      console.log('No user logged in');
+      return;
+    }
+    
+    if (isLoading) {
+      console.log('Already processing watchlist action');
+      return;
+    }
+    
     if (inWatchlist) {
+      console.log('Removing from watchlist');
       removeFromWatchlist(content.id);
     } else {
+      console.log('Adding to watchlist');
       addToWatchlist(content.id);
     }
   };
@@ -86,15 +101,15 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
             {user && (
               <Button
                 onClick={handleWatchlistToggle}
-                disabled={isAddingToWatchlist || isRemovingFromWatchlist}
+                disabled={isLoading}
                 size="icon"
                 variant="ghost"
-                className="absolute top-2 left-2 h-8 w-8 bg-black/50 hover:bg-black/70 backdrop-blur-sm"
+                className="absolute top-2 left-2 h-8 w-8 bg-black/50 hover:bg-black/70 backdrop-blur-sm transition-all duration-200"
               >
                 {inWatchlist ? (
                   <Heart className="h-4 w-4 text-red-500 fill-current" />
                 ) : (
-                  <HeartOff className="h-4 w-4 text-white" />
+                  <Heart className="h-4 w-4 text-white hover:text-red-400" />
                 )}
               </Button>
             )}
