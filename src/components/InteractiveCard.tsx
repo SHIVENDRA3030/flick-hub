@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, HeartOff } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { NetflixContent } from "@/types/netflix";
@@ -32,7 +32,7 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
   const inWatchlist = isInWatchlist(content.id);
   const isLoading = isAddingToWatchlist || isRemovingFromWatchlist;
 
-  const handleWatchlistToggle = (e: React.MouseEvent) => {
+  const handleWatchlistToggle = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -101,15 +101,20 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
             {user && (
               <Button
                 onClick={handleWatchlistToggle}
+                onTouchEnd={handleWatchlistToggle}
                 disabled={isLoading}
                 size="icon"
                 variant="ghost"
-                className="absolute top-2 left-2 h-8 w-8 bg-black/50 hover:bg-black/70 backdrop-blur-sm transition-all duration-200"
+                className="absolute top-2 left-2 h-10 w-10 md:h-8 md:w-8 bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-all duration-200 touch-manipulation select-none"
+                style={{ 
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
               >
                 {inWatchlist ? (
-                  <Heart className="h-4 w-4 text-red-500 fill-current" />
+                  <Heart className="h-5 w-5 md:h-4 md:w-4 text-red-500 fill-current" />
                 ) : (
-                  <Heart className="h-4 w-4 text-white hover:text-red-400" />
+                  <Heart className="h-5 w-5 md:h-4 md:w-4 text-white hover:text-red-400" />
                 )}
               </Button>
             )}
