@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -32,11 +31,8 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
   const inWatchlist = isInWatchlist(content.id);
   const isLoading = isAddingToWatchlist || isRemovingFromWatchlist;
 
-  const handleWatchlistToggle = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    console.log('Heart icon clicked for content:', content.id, 'current state:', inWatchlist);
+  const handleWatchlistClick = () => {
+    console.log('Watchlist button clicked for content:', content.id, 'current state:', inWatchlist);
     
     if (!user) {
       console.log('No user logged in');
@@ -97,26 +93,32 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
               </div>
             )}
             
-            {/* Watchlist Button - Only show if user is authenticated */}
+            {/* Watchlist Button - Simplified approach */}
             {user && (
-              <Button
-                onClick={handleWatchlistToggle}
-                onTouchEnd={handleWatchlistToggle}
-                disabled={isLoading}
-                size="icon"
-                variant="ghost"
-                className="absolute top-2 left-2 h-10 w-10 md:h-8 md:w-8 bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-all duration-200 touch-manipulation select-none"
+              <div
+                className="absolute top-2 left-2 h-12 w-12 md:h-10 md:w-10 bg-black/70 hover:bg-black/90 backdrop-blur-sm rounded-md flex items-center justify-center cursor-pointer transition-all duration-200 active:scale-95"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleWatchlistClick();
+                }}
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
-                  touchAction: 'manipulation'
+                  userSelect: 'none'
                 }}
               >
-                {inWatchlist ? (
-                  <Heart className="h-5 w-5 md:h-4 md:w-4 text-red-500 fill-current" />
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <Heart className="h-5 w-5 md:h-4 md:w-4 text-white hover:text-red-400" />
+                  <Heart 
+                    className={`h-6 w-6 md:h-5 md:w-5 transition-colors duration-200 ${
+                      inWatchlist 
+                        ? 'text-red-500 fill-red-500' 
+                        : 'text-white hover:text-red-400'
+                    }`}
+                  />
                 )}
-              </Button>
+              </div>
             )}
             
             <motion.div 
