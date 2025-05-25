@@ -2,14 +2,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Heart, HeartOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { NetflixContent } from "@/types/netflix";
+import { useAuth } from "@/contexts/AuthContext";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface InteractiveCardProps {
   content: NetflixContent;
 }
 
 const InteractiveCard = ({ content }: InteractiveCardProps) => {
+  const { user } = useAuth();
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist, isAddingToWatchlist, isRemovingFromWatchlist } = useWatchlist();
+
   // Floating animation variants
   const floatingVariants = {
     animate: {
@@ -19,6 +26,19 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
         repeat: Infinity,
         ease: "easeInOut",
       }
+    }
+  };
+
+  const inWatchlist = isInWatchlist(content.id);
+
+  const handleWatchlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (inWatchlist) {
+      removeFromWatchlist(content.id);
+    } else {
+      addToWatchlist(content.id);
     }
   };
 
@@ -61,6 +81,24 @@ const InteractiveCard = ({ content }: InteractiveCardProps) => {
                 SERIES
               </div>
             )}
+            
+            {/* Watchlist Button - Only show if user is authenticated */}
+            {user && (
+              <Button
+                onClick={handleWatchlistToggle}
+                disabled={isAddingToWatchlist || isRemovingFromWatchlist}
+                size="icon"
+                variant="ghost"
+                className="absolute top-2 left-2 h-8 w-8 bg-black/50 hover:bg-black/70 backdrop-blur-sm"
+              >
+                {inWatchlist ? (
+                  <Heart className="h-4 w-4 text-red-500 fill-current" />
+                ) : (
+                  <HeartOff className="h-4 w-4 text-white" />
+                )}
+              </Button>
+            )}
+            
             <motion.div 
               className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-3"
               initial={{ opacity: 0 }}
