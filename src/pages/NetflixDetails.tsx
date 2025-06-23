@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import EpisodeList, { Episode } from "@/components/EpisodeList";
 import { useEpisodes } from "@/hooks/useEpisodes";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ContentConsentDialog from "@/components/ContentConsentDialog";
+
 const THEMES = {
   darkstark: {
     background: "#141414",
@@ -27,6 +29,7 @@ const THEMES = {
     accent: "#1EAEDB"
   }
 };
+
 const NetflixDetails = () => {
   const {
     id
@@ -36,6 +39,9 @@ const NetflixDetails = () => {
   const [theme, setTheme] = useState<"darkstark" | "streamark">(localStorage.getItem("preferred-theme") as "darkstark" | "streamark" || "darkstark");
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
   const [currentEmbedCode, setCurrentEmbedCode] = useState<string | null>(null);
+  const [hasUserConsent, setHasUserConsent] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const [pendingEmbedCode, setPendingEmbedCode] = useState<string | null>(null);
   const isMobile = useIsMobile();
   console.log("NetflixDetails Page - Current route ID:", id);
   const {
@@ -102,24 +108,67 @@ const NetflixDetails = () => {
   const handleSelectEpisode = (episode: Episode) => {
     console.log("Episode selected:", episode);
     setActiveEpisodeId(episode.id);
-    setCurrentEmbedCode(episode.embed_code);
+    
+    // Check if user has already consented for external content
+    if (hasUserConsent) {
+      setCurrentEmbedCode(episode.embed_code);
+    } else {
+      // Store the embed code and show consent dialog
+      setPendingEmbedCode(episode.embed_code);
+      setShowConsentDialog(true);
+    }
+    
     document.getElementById("video-player")?.scrollIntoView({
       behavior: "smooth"
     });
     toast.success(`Now playing: Episode ${episode.episode_number}`);
   };
+
+  const handleContentConsent = () => {
+    setHasUserConsent(true);
+    setShowConsentDialog(false);
+    
+    // Load the pending embed code
+    if (pendingEmbedCode) {
+      setCurrentEmbedCode(pendingEmbedCode);
+      setPendingEmbedCode(null);
+    }
+    
+    toast.success("External content loaded successfully!");
+  };
+
+  const handleContentDecline = () => {
+    setShowConsentDialog(false);
+    setPendingEmbedCode(null);
+    toast.info("External content blocked for security");
+  };
+
   const getEmbedHtml = () => {
+    // Only return embed HTML if user has consented
+    if (!hasUserConsent) {
+      return null;
+    }
+    
     // Fix the iframe styling to properly fill the container
     if (currentEmbedCode) {
-      return currentEmbedCode.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('<IFRAME', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('</IFRAME>', '</iframe>');
+      return currentEmbedCode
+        .replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" sandbox="allow-same-origin allow-scripts allow-forms allow-presentation"')
+        .replace('<IFRAME', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" sandbox="allow-same-origin allow-scripts allow-forms allow-presentation"')
+        .replace('</IFRAME>', '</iframe>');
     }
+    
     if (content?.embed_code) {
-      return content.embed_code.replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('<IFRAME', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;"').replace('</IFRAME>', '</iframe>');
+      return content.embed_code
+        .replace('<iframe', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" sandbox="allow-same-origin allow-scripts allow-forms allow-presentation"')
+        .replace('<IFRAME', '<iframe style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" sandbox="allow-same-origin allow-scripts allow-forms allow-presentation"')
+        .replace('</IFRAME>', '</iframe>');
     } else if (content?.embed_url) {
-      return `<iframe src="${content.embed_url}" style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" allowfullscreen></iframe>`;
+      return `<iframe src="${content.embed_url}" style="width:100%;height:100%;position:absolute;top:0;left:0;border:0;" sandbox="allow-same-origin allow-scripts allow-forms allow-presentation" allowfullscreen></iframe>`;
     }
+    
     return null;
   };
+
   const toggleTheme = () => {
     const newTheme = theme === "darkstark" ? "streamark" : "darkstark";
     setTheme(newTheme);
@@ -148,7 +197,8 @@ const NetflixDetails = () => {
       </div>;
   }
   const embedHtml = getEmbedHtml();
-  return <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white overflow-x-hidden">
+  return (
+    <div className="min-h-screen bg-[var(--theme-background,#141414)] text-white overflow-x-hidden">
       <ThreeBackground color={theme === "darkstark" ? "#111111" : "#151C2C"} particleCount={isMobile ? 500 : 1000} />
       <NavMenu />
 
@@ -173,18 +223,30 @@ const NetflixDetails = () => {
         <div className="flex flex-col lg:grid lg:grid-cols-3 lg:gap-6">
           {/* Video player - Full width on mobile, 2/3 on desktop */}
           <div id="video-player" className="lg:col-span-2 relative overflow-hidden w-full rounded-lg mb-4 lg:mb-0 bg-transparent">
-            {embedHtml ? <div className="w-full aspect-video relative">
-                <div dangerouslySetInnerHTML={{
-              __html: embedHtml
-            }} className="absolute inset-0" />
-              </div> : <div className="flex items-center justify-center h-full bg-gray-900 aspect-video">
-                <Play className="w-16 h-16 sm:w-20 sm:h-20 text-white opacity-70" />
-              </div>}
-            {content?.resolution && <div className="absolute top-2 right-2">
+            {embedHtml ? (
+              <div className="w-full aspect-video relative">
+                <div 
+                  dangerouslySetInnerHTML={{ __html: embedHtml }} 
+                  className="absolute inset-0" 
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full bg-gray-900 aspect-video">
+                <Play className="w-16 h-16 sm:w-20 sm:h-20 text-white opacity-70 mb-4" />
+                {!hasUserConsent && (
+                  <p className="text-gray-400 text-center px-4">
+                    Click on an episode to load the video player
+                  </p>
+                )}
+              </div>
+            )}
+            {content?.resolution && (
+              <div className="absolute top-2 right-2">
                 <Badge className="bg-blue-900 text-blue-100 text-xs">
                   {content.resolution}
                 </Badge>
-              </div>}
+              </div>
+            )}
           </div>
           
           {/* Content details - Full width on mobile, 1/3 on desktop */}
@@ -239,6 +301,16 @@ const NetflixDetails = () => {
           </div>
         </div>
       </div>
-    </div>;
+
+      {/* Content Consent Dialog */}
+      <ContentConsentDialog
+        isOpen={showConsentDialog}
+        onConsent={handleContentConsent}
+        onDecline={handleContentDecline}
+        contentTitle={content?.title}
+      />
+    </div>
+  );
 };
+
 export default NetflixDetails;
