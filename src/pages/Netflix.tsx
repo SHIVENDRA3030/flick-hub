@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -20,6 +19,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -67,6 +67,38 @@ const Netflix = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+
+  // Smart pagination logic
+  const generatePaginationItems = () => {
+    const items = [];
+    
+    if (totalPages <= 7) {
+      // Show all pages if total is 7 or less
+      for (let i = 1; i <= totalPages; i++) {
+        items.push(i);
+      }
+    } else {
+      // Always show first page
+      items.push(1);
+      
+      if (currentPage <= 4) {
+        // Current page is near the beginning
+        items.push(2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        // Current page is near the end
+        items.push('...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        // Current page is in the middle
+        items.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    
+    return items;
+  };
+
+  const goToPage = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   // Motion variants for staggered animations
   const container = {
@@ -227,7 +259,7 @@ const Netflix = () => {
               ))}
             </motion.div>
 
-            {/* Pagination */}
+            {/* Smart Pagination */}
             {totalPages > 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -238,26 +270,32 @@ const Netflix = () => {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        onClick={() => goToPage(Math.max(currentPage - 1, 1))}
                         className={`transition-all duration-300 hover:scale-105 ${
                           currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
                         }`}
                       />
                     </PaginationItem>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className="cursor-pointer transition-all duration-300 hover:scale-110 bg-gray-800 border-gray-700"
-                        >
-                          {page}
-                        </PaginationLink>
+                    
+                    {generatePaginationItems().map((item, index) => (
+                      <PaginationItem key={index}>
+                        {item === '...' ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => goToPage(item as number)}
+                            isActive={currentPage === item}
+                            className="cursor-pointer transition-all duration-300 hover:scale-110 bg-gray-800 border-gray-700"
+                          >
+                            {item}
+                          </PaginationLink>
+                        )}
                       </PaginationItem>
                     ))}
+                    
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        onClick={() => goToPage(Math.min(currentPage + 1, totalPages))}
                         className={`transition-all duration-300 hover:scale-105 ${
                           currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"
                         }`}
